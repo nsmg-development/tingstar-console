@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\SnsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -16,4 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::prefix('v1')->group(function () {
+    Route::get('/login', [LoginController::class, 'login']);
+    Route::get('/instagram', [SnsController::class, 'instagramList']);
+    Route::get('/youtube', [SnsController::class, 'youtubeList']);
+    Route::put('/state-update/{id}', [SnsController::class, 'stateUpdate']);
 });
