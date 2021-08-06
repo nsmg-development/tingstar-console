@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class SnsController extends Controller
 {
-    protected $wifi;
     protected $response;
     protected $place;
 
@@ -53,6 +52,12 @@ class SnsController extends Controller
                 'state' => $request->state
             ]);
 
+        return $this->response->set_response(200, null);
+    }
+
+    public function delete($id)
+    {
+        $this->article->where('id', $id)->delete();
         return $this->response->set_response(200, null);
     }
 }

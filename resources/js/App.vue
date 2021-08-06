@@ -49,7 +49,7 @@
         >
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
             <v-toolbar-title @click="">
-                Curator
+                Curator9
             </v-toolbar-title>
             <v-spacer/>
             <v-menu

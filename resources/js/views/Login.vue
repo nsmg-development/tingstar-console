@@ -22,7 +22,7 @@
                             dark
                             flat
                         >
-                            <v-toolbar-title>Curator 로그인</v-toolbar-title>
+                            <v-toolbar-title>Curator9 로그인</v-toolbar-title>
                         </v-toolbar>
                         <v-card-text>
                             <v-form

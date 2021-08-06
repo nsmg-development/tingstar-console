@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -50,5 +51,12 @@ class LoginController extends Controller
         } else {
             return $this->response->set_response(401, null);
         }
+    }
+
+    public function logout()
+    {
+        Session::flush();
+        Auth::logout();
+        return $this->response->set_response(200, null);
     }
 }

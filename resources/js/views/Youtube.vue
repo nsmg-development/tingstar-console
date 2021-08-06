@@ -46,8 +46,8 @@ export default {
             headers: [
                 {text: 'NO.', value: 'no', filterable: false},
                 {text: '타입', value: 'type', filterable: false},
-                {text: '키워드', value: 'keyword', filterable: false},
-                {text: '채널', value: 'channel', filterable: false},
+                {text: '키워드', value: 'keyword'},
+                {text: '채널', value: 'channel'},
                 {text: '원본 URL', value: 'url', sortable: false},
                 {text: '게시글 시간', value: 'date', filterable: false},
                 {text: 'ON/OFF', value: 'state', filterable: false},
@@ -100,7 +100,7 @@ export default {
             if (!confirm("정말 삭제하시겠습니까?")) return false
             this.selected.forEach(function (event) {
                 return axios({
-                    url: 'v1/article/' + event.id,
+                    url: 'v1/articles/' + event.id,
                     method: 'DELETE',
                 })
                     .then(res => {

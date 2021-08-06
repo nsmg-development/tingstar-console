@@ -2077,12 +2077,10 @@ __webpack_require__.r(__webpack_exports__);
         filterable: false
       }, {
         text: '키워드',
-        value: 'keyword',
-        filterable: false
+        value: 'keyword'
       }, {
         text: '채널',
-        value: 'channel',
-        filterable: false
+        value: 'channel'
       }, {
         text: '원본 URL',
         value: 'url',
@@ -2144,7 +2142,7 @@ __webpack_require__.r(__webpack_exports__);
       if (!confirm("정말 삭제하시겠습니까?")) return false;
       this.selected.forEach(function (event) {
         return axios({
-          url: 'v1/article/' + event.id,
+          url: 'v1/articles/' + event.id,
           method: 'DELETE'
         }).then(function (res) {
           location.reload();
@@ -2360,12 +2358,10 @@ __webpack_require__.r(__webpack_exports__);
         filterable: false
       }, {
         text: '키워드',
-        value: 'keyword',
-        filterable: false
+        value: 'keyword'
       }, {
         text: '채널',
-        value: 'channel',
-        filterable: false
+        value: 'channel'
       }, {
         text: '원본 URL',
         value: 'url',
@@ -2427,7 +2423,7 @@ __webpack_require__.r(__webpack_exports__);
       if (!confirm("정말 삭제하시겠습니까?")) return false;
       this.selected.forEach(function (event) {
         return axios({
-          url: 'v1/article/' + event.id,
+          url: 'v1/articles/' + event.id,
           method: 'DELETE'
         }).then(function (res) {
           location.reload();
@@ -5043,7 +5039,7 @@ var render = function() {
               }),
               _vm._v(" "),
               _c("v-toolbar-title", { on: { click: function($event) {} } }, [
-                _vm._v("\n            Curator\n        ")
+                _vm._v("\n            Curator9\n        ")
               ]),
               _vm._v(" "),
               _c("v-spacer"),
@@ -5324,7 +5320,7 @@ var render = function() {
                       _c(
                         "v-toolbar",
                         { attrs: { color: "primary", dark: "", flat: "" } },
-                        [_c("v-toolbar-title", [_vm._v("Curator 로그인")])],
+                        [_c("v-toolbar-title", [_vm._v("Curator9 로그인")])],
                         1
                       ),
                       _vm._v(" "),
