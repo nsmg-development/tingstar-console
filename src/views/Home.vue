@@ -25,7 +25,7 @@ export default {
             {
                 text: '수집정보 리스트',
                 disabled: false,
-                href: '/media-article-list',
+                href: '/',
             },
         ],
         headers: [
@@ -36,28 +36,34 @@ export default {
             {text: '채널', value: 'channel', sortable: false},
             {text: '원본 URL', value: 'url', sortable: false},
             {text: '게시 날짜', value: 'date', sortable: false},
+            {text: '게시 여부', value: 'state', sortable: false},
         ],
         items: [],
     }),
     mounted() {
-        // this.getData();
+        this.getData();
     },
     methods: {
         getData() {
             let result = [];
             this.loading = true
-            this.axios.get('v1/articles?page=1&per_page=10&media_idx=1000')
+            this.axios.get('api/v1/articles?page=1&per_page=10&media_id=1')
                 .then(res => {
-                    console.log(res.data);
-                    // if (res.data.data.platforms.length > 0) {
-                    //     res.data.data.platforms.map((item, index) => {
-                    //         result.push({
-                    //             no: index + 1,
-                    //             id: item.id,
-                    //             platform: item.platform,
-                    //         })
-                    //     })
-                    // }
+                    if (res.data.data.articles.length > 0) {
+                        res.data.data.articles.map((item, index) => {
+                            result.push({
+                                no: index + 1,
+                                id: item.id,
+                                platform: item.platform,
+                                type: item.type,
+                                keyword: item.keyword,
+                                channel: item.channel,
+                                url: item.url,
+                                date: item.date,
+                                state: item.state
+                            })
+                        })
+                    }
                     this.items = result;
                     this.loading = false
                 })
@@ -66,12 +72,14 @@ export default {
                 });
         },
         handleClick(value) {
-            this.$router.push({name: 'PlatformShow', params: {id: value.id}});
+            this.$router.push({name: 'ArticleShow', params: {id: value.id}});
         }
     }
 }
 </script>
 
 <style scoped>
-
+.row-pointer >>> tbody tr :hover {
+    cursor: pointer;
+}
 </style>

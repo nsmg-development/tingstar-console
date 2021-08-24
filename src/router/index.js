@@ -5,7 +5,7 @@ import Home from "../views/Home";
 import Platform from "../views/platform/Platform";
 import PlatformShow from "../views/platform/PlatformShow";
 import MediaShow from "../views/media/MediaShow";
-import MediaArticle from "../views/media/MediaArticle";
+import ArticleShow from "../views/article/ArticleShow";
 Vue.use(VueRouter)
 
 const routes = [
@@ -55,9 +55,9 @@ const routes = [
 		},
 	},
 	{
-		path: '/media-article-list',
-		name: 'MediaArticle',
-		component: MediaArticle,
+		path: '/:id',
+		name: 'ArticleShow',
+		component: ArticleShow,
 		meta: {
 			requiresAuth: true,
 		},

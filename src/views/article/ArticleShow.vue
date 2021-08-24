@@ -1,31 +1,64 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
-        <Datatable
-            :headers="headers"
-            :items="items"
-            :loading="loading"
-            @handleClick="handleClick"
-        ></Datatable>
+        <v-card-title>
+            <v-row>
+                <v-col>
+                    <v-text-field
+                        v-model="keyword"
+                        label="키워드"
+                        readonly
+                    ></v-text-field>
+                    <v-text-field
+                        v-model="channel"
+                        label="채널"
+                        readonly
+                    ></v-text-field>
+                </v-col>
+                <v-col>
+                    <v-text-field
+                        label="카테고리"
+                        placeholder="카테고리"
+                        readonly
+                    ></v-text-field>
+                    <v-text-field
+                        label="메모"
+                        placeholder="메모"
+                        readonly
+                    ></v-text-field>
+                </v-col>
+            </v-row>
+        </v-card-title>
+<!--        <Datatable-->
+<!--            :headers="headers"-->
+<!--            :items="items"-->
+<!--            :loading="loading"-->
+<!--        ></Datatable>-->
     </v-container>
 </template>
 
 <script>
 import Breadcrumbs from "../../components/Breadcrumbs";
-import Datatable from "../../components/Datatable";
+// import Datatable from "../../components/Datatable";
 
 export default {
     components: {
         Breadcrumbs,
-        Datatable
+        // Datatable
     },
-    data: () => ({
+    data() {
+        return {
         loading: false,
         breadcrumbs: [
             {
                 text: '수집정보 리스트',
                 disabled: false,
-                href: '/media-article-list',
+                href: '/',
+            },
+            {
+                text: '수집정보 상세보기',
+                disabled: false,
+                href: '/' + this.$route.params.id,
             },
         ],
         headers: [
@@ -38,15 +71,17 @@ export default {
             {text: '게시 날짜', value: 'date', sortable: false},
         ],
         items: [],
-    }),
+        keyword: '',
+        channel: '',
+    }},
     mounted() {
-        // this.getData();
+        this.getData();
     },
     methods: {
         getData() {
             let result = [];
             this.loading = true
-            this.axios.get('v1/articles?page=1&per_page=10&media_idx=1000')
+            this.axios.get('api/v1/articles/' + this.$route.params.id)
                 .then(res => {
                     console.log(res.data);
                     // if (res.data.data.platforms.length > 0) {
@@ -59,15 +94,14 @@ export default {
                     //     })
                     // }
                     this.items = result;
+                    this.keyword = res.data.data.keyword;
+                    this.channel = res.data.data.channel;
                     this.loading = false
                 })
                 .catch(err => {
                     console.error(err);
                 });
         },
-        handleClick(value) {
-            this.$router.push({name: 'PlatformShow', params: {id: value.id}});
-        }
     }
 }
 </script>
