@@ -23,6 +23,7 @@
                     v-model="item.state"
                     :true-value=1
                     :false-value=0
+                    color="#E00051"
                     @change="changeState(item.id)"
                 ></v-switch>
             </template>

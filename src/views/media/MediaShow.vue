@@ -16,6 +16,7 @@
                             v-model="item.state"
                             :true-value=1
                             :false-value=0
+                            color="#E00051"
                             @change="changeState(item.id)"
                         ></v-switch>
                     </template>
@@ -149,6 +150,7 @@
                             v-model="item.state"
                             :true-value=1
                             :false-value=0
+                            color="#E00051"
                             @change="changeChannelState(item.id)"
                         ></v-switch>
                     </template>
@@ -390,8 +392,9 @@ export default {
             this.loading = true
             this.axios.get('api/v1/medias/' + media_id)
                 .then(res => {
-                    if (res.data.data.length > 0) {
-                        res.data.data[0].keywords.map((item, index) => {
+                    console.log(res.data.data.channels);
+                    if (res.data.data.keywords.length > 0) {
+                        res.data.data.keywords.map((item, index) => {
                             keywords.push({
                                 no: index + 1,
                                 id: item.id,
@@ -402,8 +405,8 @@ export default {
                             })
                         })
                     }
-                    if (res.data.data.length > 0) {
-                        res.data.data[0].channels.map((item, index) => {
+                    if (res.data.data.channels.length > 0) {
+                        res.data.data.channels.map((item, index) => {
                             channels.push({
                                 no: index + 1,
                                 id: item.id,

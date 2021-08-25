@@ -1,5 +1,5 @@
 <template>
-    <v-app>
+    <v-app style="background-color:rgba(244,244,244,1)">
         <v-navigation-drawer
             v-model="drawer"
             color="primary"
