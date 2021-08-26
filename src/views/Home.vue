@@ -1,23 +1,34 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
-        <Datatable
+        <v-data-table
             :headers="headers"
             :items="items"
             :loading="loading"
+            sort-by="calories"
+            class="elevation-1"
             @handleClick="handleClick"
-        ></Datatable>
+        >
+            <template v-slot:item.state="{ item }">
+                <v-select
+                    v-model="item.state"
+                    :items="state_items"
+                    item-text="name"
+                    item-value="id"
+                    color="#E00051"
+                    @change="changeState(item.id)"
+                ></v-select>
+            </template>
+        </v-data-table>
     </v-container>
 </template>
 
 <script>
 import Breadcrumbs from "../components/Breadcrumbs";
-import Datatable from "../components/Datatable";
 
 export default {
     components: {
         Breadcrumbs,
-        Datatable
     },
     data: () => ({
         loading: false,
@@ -39,6 +50,11 @@ export default {
             {text: '게시 여부', value: 'state', sortable: false},
         ],
         items: [],
+        state_items: [
+            {id: 0, name: '미설정'},
+            {id: 1, name: '게시'},
+            {id: 2, name: '미게시'},
+        ],
     }),
     mounted() {
         this.getData();
@@ -65,6 +81,7 @@ export default {
                         })
                     }
                     this.items = result;
+                    console.log(this.items);
                     this.loading = false
                 })
                 .catch(err => {
@@ -73,7 +90,19 @@ export default {
         },
         handleClick(value) {
             this.$router.push({name: 'ArticleShow', params: {id: value.id}});
-        }
+        },
+        changeState(id) {
+            const item = this.items.filter(item => item.id === id)[0];
+            const data = {
+                state: item.state
+            };
+            this.axios.put('api/v1/articles/' + id, data).then(res => {
+                this.getData();
+                console.log(res);
+            }).catch(err => {
+                console.error(err);
+            });
+        },
     }
 }
 </script>

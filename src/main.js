@@ -22,6 +22,7 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL;
 axios.defaults.headers.common['Authorization'] =
 	'Bearer ' + localStorage.getItem('token');
+axios.defaults.headers.common['c9'] = 'dev';
 
 // window.moment = require('moment')
 // moment.locale('ko')
