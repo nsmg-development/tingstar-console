@@ -29,7 +29,7 @@
                                     <v-icon>{{ menu.icon }}</v-icon>
                                 </v-list-item-icon>
                                 <v-list-item-content>
-                                    <v-list-item-title>{{menu.text}}</v-list-item-title>
+                                    <v-list-item-title>{{ menu.text }}</v-list-item-title>
                                 </v-list-item-content>
                             </v-list-item>
                         </template>
@@ -103,31 +103,33 @@ export default {
     components: {
         ListGroup
     },
-    data: () => ({
-        name: '',
-        state: '',
-        email: '',
-        drawer: null,
-        items: [
-            {
-                subheader: '관리',
-                menus: [
-                    {icon: "mdi-view-dashboard", text: "수집 정보 리스트", link: "/"},
-                ]
-            },
-        ],
-        settings: [
-            {
-                action: 'mdi-cog',
-                item: [
-                    {title: '플랫폼 관리', link: "/platform"},
-                    {title: '키워드 및 채널 관리', link: "/media"},
-                ],
-                title: '설정',
-            },
-        ],
-        menu: [],
-    }),
+    data() {
+        return {
+            name: '',
+            state: '',
+            email: '',
+            drawer: null,
+            items: [
+                {
+                    subheader: '관리',
+                    menus: [
+                        {icon: "mdi-view-dashboard", text: "수집 정보 리스트", link: "/"},
+                    ]
+                },
+            ],
+            settings: [
+                {
+                    action: 'mdi-cog',
+                    item: [
+                        {title: '플랫폼 관리', link: "/platform"},
+                        {title: '키워드 및 채널 관리', link: "/media"},
+                    ],
+                    title: '설정',
+                },
+            ],
+            menu: [],
+        }
+    },
     computed: {
         ...mapGetters({
             authenticated: 'auth/authenticated',

@@ -12,10 +12,12 @@
 
 <script>
 export default {
-    data: () => ({
-        items: [],
-        media: 1,
-    }),
+    data() {
+        return {
+            items: [],
+            media: 1,
+        }
+    },
     mounted() {
         this.getData()
     },

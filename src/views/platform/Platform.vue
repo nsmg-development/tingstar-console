@@ -19,21 +19,23 @@ export default {
         Breadcrumbs,
         Datatable,
     },
-    data: () => ({
-        loading: false,
-        breadcrumbs: [
-            {
-                text: '플랫폼 관리',
-                disabled: false,
-                href: '/platform',
-            },
-        ],
-        headers: [
-            {text: 'NO.', value: 'no', filterable: false},
-            {text: '플랫폼', value: 'platform', sortable: false},
-        ],
-        items: [],
-    }),
+    data() {
+        return {
+            loading: false,
+            breadcrumbs: [
+                {
+                    text: '플랫폼 관리',
+                    disabled: false,
+                    href: '/platform',
+                },
+            ],
+            headers: [
+                {text: 'NO.', value: 'no', filterable: false},
+                {text: '플랫폼', value: 'platform', sortable: false},
+            ],
+            items: [],
+        }
+    },
     mounted() {
         this.getData();
     },

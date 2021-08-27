@@ -314,68 +314,70 @@ export default {
             val || this.channelCloseDelete()
         },
     },
-    data: () => ({
-        loading: false,
-        breadcrumbs: [
-            {
-                text: '키워드 및 채널 관리',
-                disabled: false,
-                href: '/',
+    data() {
+        return {
+            loading: false,
+            breadcrumbs: [
+                {
+                    text: '키워드 및 채널 관리',
+                    disabled: false,
+                    href: '/',
+                },
+            ],
+            dialog: false,
+            channelDialog: false,
+            dialogDelete: false,
+            channelDialogDelete: false,
+            editedIndex: -1,
+            channelEditedIndex: -1,
+            editedItem: {
+                media_id: 0,
+                platform: '',
+                keyword: '',
+                state: '',
             },
-        ],
-        dialog: false,
-        channelDialog: false,
-        dialogDelete: false,
-        channelDialogDelete: false,
-        editedIndex: -1,
-        channelEditedIndex: -1,
-        editedItem: {
-            media_id: 0,
-            platform: '',
-            keyword: '',
-            state: '',
-        },
-        defaultItem: {
-            media_id: '',
-            platform: '',
-            keyword: '',
-            state: '',
-        },
-        channelEditedItem: {
-            media_id: 0,
-            platform: '',
-            channel: '',
-            name: '',
-            state: '',
-        },
-        channelDefaultItem: {
-            media_id: '',
-            platform: '',
-            channel: '',
-            name: '',
-            state: '',
-        },
-        keyword_headers: [
-            {text: 'NO.', value: 'no', filterable: false, sortable: false},
-            {text: '플랫폼', value: 'platform', sortable: false},
-            {text: '키워드', value: 'keyword', sortable: false},
-            {text: '사용여부', value: 'state', sortable: false},
-            {text: '수정', value: 'actions', sortable: false},
+            defaultItem: {
+                media_id: '',
+                platform: '',
+                keyword: '',
+                state: '',
+            },
+            channelEditedItem: {
+                media_id: 0,
+                platform: '',
+                channel: '',
+                name: '',
+                state: '',
+            },
+            channelDefaultItem: {
+                media_id: '',
+                platform: '',
+                channel: '',
+                name: '',
+                state: '',
+            },
+            keyword_headers: [
+                {text: 'NO.', value: 'no', filterable: false, sortable: false},
+                {text: '플랫폼', value: 'platform', sortable: false},
+                {text: '키워드', value: 'keyword', sortable: false},
+                {text: '사용여부', value: 'state', sortable: false},
+                {text: '수정', value: 'actions', sortable: false},
 
-        ],
-        channel_headers: [
-            {text: 'NO.', value: 'no', filterable: false, sortable: false},
-            {text: '플랫폼', value: 'platform', sortable: false},
-            {text: '채널', value: 'channel', sortable: false},
-            {text: '이름', value: 'name', sortable: false},
-            {text: '사용여부', value: 'state', sortable: false},
-            {text: '수정', value: 'actions', sortable: false},
-        ],
-        keywords: [],
-        channels: [],
-        items: [],
-        media_id: 1,
-    }),
+            ],
+            channel_headers: [
+                {text: 'NO.', value: 'no', filterable: false, sortable: false},
+                {text: '플랫폼', value: 'platform', sortable: false},
+                {text: '채널', value: 'channel', sortable: false},
+                {text: '이름', value: 'name', sortable: false},
+                {text: '사용여부', value: 'state', sortable: false},
+                {text: '수정', value: 'actions', sortable: false},
+            ],
+            keywords: [],
+            channels: [],
+            items: [],
+            media_id: 1,
+        }
+    },
     mounted() {
         this.medias();
     },
@@ -593,7 +595,9 @@ export default {
 </script>
 
 <style scoped>
-
+.row-pointer >>> tbody tr :hover {
+    cursor: pointer;
+}
 </style>
 
 

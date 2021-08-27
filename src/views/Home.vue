@@ -7,16 +7,17 @@
             :loading="loading"
             sort-by="calories"
             class="elevation-1"
-            @handleClick="handleClick"
+            @click:row="handleClick"
         >
             <template v-slot:item.state="{ item }">
                 <v-select
                     v-model="item.state"
                     :items="state_items"
-                    item-text="name"
-                    item-value="id"
+                    item-text="state"
+                    item-value="value"
                     color="#E00051"
                     @change="changeState(item.id)"
+                    v-on:click.stop
                 ></v-select>
             </template>
         </v-data-table>
@@ -30,32 +31,34 @@ export default {
     components: {
         Breadcrumbs,
     },
-    data: () => ({
-        loading: false,
-        breadcrumbs: [
-            {
-                text: '수집정보 리스트',
-                disabled: false,
-                href: '/',
-            },
-        ],
-        headers: [
-            {text: 'NO.', value: 'no', filterable: false},
-            {text: '플랫폼', value: 'platform', sortable: false},
-            {text: '타입', value: 'type', sortable: false},
-            {text: '키워드', value: 'keyword', sortable: false},
-            {text: '채널', value: 'channel', sortable: false},
-            {text: '원본 URL', value: 'url', sortable: false},
-            {text: '게시 날짜', value: 'date', sortable: false},
-            {text: '게시 여부', value: 'state', sortable: false},
-        ],
-        items: [],
-        state_items: [
-            {id: 0, name: '미설정'},
-            {id: 1, name: '게시'},
-            {id: 2, name: '미게시'},
-        ],
-    }),
+    data() {
+        return {
+            loading: false,
+            breadcrumbs: [
+                {
+                    text: '수집정보 리스트',
+                    disabled: false,
+                    href: '/',
+                },
+            ],
+            headers: [
+                {text: 'NO.', value: 'no', filterable: false},
+                {text: '플랫폼', value: 'platform', sortable: false},
+                {text: '타입', value: 'type', sortable: false},
+                {text: '키워드', value: 'keyword', sortable: false},
+                {text: '채널', value: 'channel', sortable: false},
+                {text: '원본 URL', value: 'url', sortable: false},
+                {text: '게시 날짜', value: 'date', sortable: false},
+                {text: '게시 여부', value: 'state', sortable: false},
+            ],
+            items: [],
+            state_items: [
+                {state: '미설정', value: 0},
+                {state: '게시', value: 1},
+                {state: '미게시', value: 2},
+            ],
+        }
+    },
     mounted() {
         this.getData();
     },
@@ -81,7 +84,6 @@ export default {
                         })
                     }
                     this.items = result;
-                    console.log(this.items);
                     this.loading = false
                 })
                 .catch(err => {
@@ -89,14 +91,16 @@ export default {
                 });
         },
         handleClick(value) {
+            console.log(value.id);
             this.$router.push({name: 'ArticleShow', params: {id: value.id}});
         },
         changeState(id) {
+            console.log(id);
             const item = this.items.filter(item => item.id === id)[0];
             const data = {
                 state: item.state
             };
-            this.axios.put('api/v1/articles/' + id, data).then(res => {
+            this.axios.put('api/v1/articles/' + id + '/state', data).then(res => {
                 this.getData();
                 console.log(res);
             }).catch(err => {
@@ -108,7 +112,7 @@ export default {
 </script>
 
 <style scoped>
-.row-pointer >>> tbody tr :hover {
+.v-data-table__wrapper > table > tbody > tr:hover {
     cursor: pointer;
 }
 </style>

@@ -55,25 +55,25 @@
                         ></v-text-field>
                     </v-col>
                     <v-col>
-<!--                        <v-combobox-->
-<!--                            v-model="tags"-->
-<!--                            chips-->
-<!--                            multiple-->
-<!--                            filled-->
-<!--                            readonly-->
-<!--                            :#allow-overflow="false"-->
-<!--                        >-->
-<!--                            <template v-slot:selection="{ item }">-->
-<!--                                <v-chip-->
-<!--                                    small-->
-<!--                                >-->
-<!--                                    {{ item }}-->
-<!--                                </v-chip>-->
-<!--                            </template>-->
-<!--                        </v-combobox>-->
+                        <!--                        <v-combobox-->
+                        <!--                            v-model="tags"-->
+                        <!--                            chips-->
+                        <!--                            multiple-->
+                        <!--                            filled-->
+                        <!--                            readonly-->
+                        <!--                            :#allow-overflow="false"-->
+                        <!--                        >-->
+                        <!--                            <template v-slot:selection="{ item }">-->
+                        <!--                                <v-chip-->
+                        <!--                                    small-->
+                        <!--                                >-->
+                        <!--                                    {{ item }}-->
+                        <!--                                </v-chip>-->
+                        <!--                            </template>-->
+                        <!--                        </v-combobox>-->
                         <v-text-field
                             v-model="tags"
-                            label="채널"
+                            label="해시태그"
                             readonly
                             persistent-hint
                             filled
@@ -260,29 +260,32 @@ export default {
     },
     methods: {
         getData() {
-            let result = [];
             this.loading = true
             this.axios.get('api/v1/articles/' + this.$route.params.id)
                 .then(res => {
                     if (res.data.data.article_medias.length > 0) {
-                        res.data.data.article_medias.map((item, index) => {
-                            result.push({
+                        this.items = res.data.data.article_medias.map((item, index) => {
+                            return {
                                 no: index + 1,
-                                id: item.id,
+                                id: item.article_id,
                                 type: item.type,
                                 url: item.url,
                                 storage_url: item.storage_url,
                                 width: item.width,
                                 height: item.height
-                            })
+                            }
                         })
                     }
-                    this.items = result;
                     this.detail = res.data.data;
-                    this.owner = res.data.data.article_owner;
+                    this.owner = res.data.data.article_owner ?? '';
                     const str = this.detail.hashtag;
-                    const arr = str.split(' ', -1);
-                    this.tags = arr;
+                    if (str) {
+                        const arr = str.split(' ', -1);
+                        this.tags = arr;
+                    } else {
+                        this.tags = '';
+                    }
+
                 })
                 .catch(err => {
                     console.error(err);

@@ -66,21 +66,23 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import {mapGetters, mapActions} from 'vuex'
 
 export default {
-    data: () => ({
-        email: '',
-        emailRules: [
-            v => !!v || '아이디를 입력해 주세요.',
-        ],
-        password: '',
-        passwordRules: [
-            v => !!v || '비밀번호를 입력해 주세요.',
-        ],
-        token: '',
-        grant_type: 'password',
-        client_id: '93fff73e-62d6-44c8-82a3-da3e2f5275b8',
-        client_secret: 'OsDF2iplB0PbXNm3nvcJpcZdaYJN0tj4A4pqicl5',
-        scope: '*'
-    }),
+    data() {
+        return {
+            email: '',
+            emailRules: [
+                v => !!v || '아이디를 입력해 주세요.',
+            ],
+            password: '',
+            passwordRules: [
+                v => !!v || '비밀번호를 입력해 주세요.',
+            ],
+            token: '',
+            grant_type: 'password',
+            client_id: '93fff73e-62d6-44c8-82a3-da3e2f5275b8',
+            client_secret: 'OsDF2iplB0PbXNm3nvcJpcZdaYJN0tj4A4pqicl5',
+            scope: '*'
+        }
+    },
     computed: {
         ...mapGetters({
             authenticated: 'auth/authenticated',
