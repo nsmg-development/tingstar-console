@@ -5,10 +5,18 @@
             :headers="headers"
             :items="items"
             :loading="loading"
-            sort-by="calories"
-            class="elevation-1"
+            item-key="id"
+            show-select
+            class="row-pointer"
             @click:row="handleClick"
         >
+            <template v-slot:item.storage_thumbnail_url="{ item }">
+                <v-img
+                    max-height="100"
+                    max-width="200"
+                    :src="item.storage_thumbnail_url"
+                ></v-img>
+            </template>
             <template v-slot:item.state="{ item }">
                 <v-select
                     v-model="item.state"
@@ -20,7 +28,21 @@
                     v-on:click.stop
                 ></v-select>
             </template>
+            <template v-slot:item.has_media="{ item }">
+                <v-chip :color="color" class="white--text">
+                    {{ item.has_media }}
+                </v-chip>
+            </template>
         </v-data-table>
+        <v-pagination
+            class="mt-5"
+            v-model="page"
+            :length="last_page"
+            color="#E00051"
+            prev-icon="mdi-chevron-left"
+            next-icon="mdi-chevron-right"
+            :total-visible="10"
+        ></v-pagination>
     </v-container>
 </template>
 
@@ -43,6 +65,7 @@ export default {
             ],
             headers: [
                 {text: 'NO.', value: 'no', filterable: false},
+                {text: '썸네일', value: 'storage_thumbnail_url', filterable: false},
                 {text: '플랫폼', value: 'platform', sortable: false},
                 {text: '타입', value: 'type', sortable: false},
                 {text: '키워드', value: 'keyword', sortable: false},
@@ -50,6 +73,7 @@ export default {
                 {text: '원본 URL', value: 'url', sortable: false},
                 {text: '게시 날짜', value: 'date', sortable: false},
                 {text: '게시 여부', value: 'state', sortable: false},
+                {text: '미디어', value: 'has_media', sortable: false},
             ],
             items: [],
             state_items: [
@@ -57,6 +81,14 @@ export default {
                 {state: '게시', value: 1},
                 {state: '미게시', value: 2},
             ],
+            page: 1,
+            last_page: 1,
+            color: '',
+        }
+    },
+    watch: {
+        page() {
+            this.getData()
         }
     },
     mounted() {
@@ -65,11 +97,19 @@ export default {
     methods: {
         getData() {
             let result = [];
+            let media = '';
             this.loading = true
-            this.axios.get('api/v1/articles?page=1&per_page=10&media_id=1')
+            this.axios.get('api/v1/articles?page=' + this.page + '&per_page=10&media_id=1')
                 .then(res => {
                     if (res.data.data.articles.length > 0) {
                         res.data.data.articles.map((item, index) => {
+                            if(item.has_media == true) {
+                                media = 'Y'
+                                this.color = '#E00051'
+                            } else {
+                                media = 'N'
+                                this.color = 'grey'
+                            }
                             result.push({
                                 no: index + 1,
                                 id: item.id,
@@ -79,11 +119,15 @@ export default {
                                 channel: item.channel,
                                 url: item.url,
                                 date: item.date,
-                                state: item.state
+                                state: item.state,
+                                has_media: media,
+                                storage_thumbnail_url: "https://chuncheon.blob.core.windows.net/chuncheon/" + item.storage_thumbnail_url,
                             })
                         })
                     }
                     this.items = result;
+                    console.log(res.data.data);
+                    this.last_page = Math.floor(res.data.data.totalCount / 10) + 1;
                     this.loading = false
                 })
                 .catch(err => {
@@ -91,11 +135,9 @@ export default {
                 });
         },
         handleClick(value) {
-            console.log(value.id);
             this.$router.push({name: 'ArticleShow', params: {id: value.id}});
         },
         changeState(id) {
-            console.log(id);
             const item = this.items.filter(item => item.id === id)[0];
             const data = {
                 state: item.state
@@ -112,7 +154,7 @@ export default {
 </script>
 
 <style scoped>
-.v-data-table__wrapper > table > tbody > tr:hover {
+.row-pointer >>> tbody tr :hover {
     cursor: pointer;
 }
 </style>

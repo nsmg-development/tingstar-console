@@ -1,12 +1,14 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
-        <Datatable
-            :headers="headers"
-            :items="items"
-            :loading="loading"
-            @handleClick="handleClick"
-        ></Datatable>
+        <v-card width="500">
+            <Datatable
+                :headers="headers"
+                :items="items"
+                :loading="loading"
+                @handleClick="handleClick"
+            ></Datatable>
+        </v-card>
     </v-container>
 </template>
 

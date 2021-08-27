@@ -394,7 +394,6 @@ export default {
             this.loading = true
             this.axios.get('api/v1/medias/' + media_id)
                 .then(res => {
-                    console.log(res.data.data.channels);
                     if (res.data.data.keywords.length > 0) {
                         res.data.data.keywords.map((item, index) => {
                             keywords.push({
