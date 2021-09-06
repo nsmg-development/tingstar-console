@@ -1,69 +1,62 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
-        <!--        <v-data-table-->
-        <!--            :headers="headers"-->
-        <!--            :items="items"-->
-        <!--            :loading="loading"-->
-        <!--            item-key="id"-->
-        <!--            show-select-->
-        <!--            class="row-pointer"-->
-        <!--            @click:row="handleClick"-->
-        <!--        >-->
-        <!--            <template v-slot:item.storage_thumbnail_url="{ item }">-->
-        <!--                <v-img-->
-        <!--                    max-height="100"-->
-        <!--                    max-width="200"-->
-        <!--                    :src="item.storage_thumbnail_url"-->
-        <!--                ></v-img>-->
-        <!--            </template>-->
-        <!--            <template v-slot:item.state="{ item }">-->
-        <!--                <v-select-->
-        <!--                    v-model="item.state"-->
-        <!--                    :items="state_items"-->
-        <!--                    item-text="state"-->
-        <!--                    item-value="value"-->
-        <!--                    color="#E00051"-->
-        <!--                    @change="changeState(item.id)"-->
-        <!--                    v-on:click.stop-->
-        <!--                ></v-select>-->
-        <!--            </template>-->
-        <!--            <template v-slot:item.has_media="{ item }">-->
-        <!--                <v-chip :color="color" class="white&#45;&#45;text">-->
-        <!--                    {{ item.has_media }}-->
-        <!--                </v-chip>-->
-        <!--            </template>-->
-        <!--        </v-data-table>-->
-        <v-row>
-            <v-col
-                cols="12" sm="6" md="4" lg="3"
-                v-for="(item, i) in items" :key="i"
-            >
-                <v-card>
-                    <v-img
-                        class="row-pointer"
-                        height="200px"
-                        :src="item.storage_thumbnail_url"
-                        @click="handleClick(item)"
-                    >
-                    </v-img>
-                    <v-card-title>
-                        {{ item.keyword }}
-                    </v-card-title>
-                    <v-card-subtitle>
-                        {{ item.platform }}
-                        <v-select
-                            v-model="item.state"
-                            :items="state_items"
-                            item-text="state"
-                            item-value="value"
-                            @change="changeState(item.id)"
-                            style="width: 70px"
-                        ></v-select>
-                    </v-card-subtitle>
-                </v-card>
-            </v-col>
-        </v-row>
+        <div>
+            <div>
+                <v-row>
+                    <v-col>
+                    <span class="checkbox"
+                          style="display:inline-block; padding: 15px 15px 10px 5px; margin-top: 7px; float: left">
+                        <input type="checkbox" id="allcheck" v-model="selected" @click="selectAll()"/>
+                    </span>
+                        <v-switch
+                            :true-value=1
+                            :false-value=0
+                            color="#E00051"
+                            @change="changeAllState()"
+                        ></v-switch>
+                    </v-col>
+                    <v-col>
+                        <v-text-field
+                            label="검색"
+                            append-icon="search"
+                            v-model="search"
+                            @keyup.native.enter="data_search"
+                        ></v-text-field>
+                    </v-col>
+                </v-row>
+            </div>
+            <v-row>
+                <v-col
+                    cols="12" sm="6" md="4" lg="3"
+                    v-for="(item, i) in items" :key="i"
+                >
+                    <v-card>
+                        <input type="checkbox" class="checked" v-model="checked[i]"/>
+                        <v-img
+                            class="row-pointer"
+                            height="200px"
+                            :src="item.storage_thumbnail_url"
+                            @click="handleClick(item)"
+                        >
+                        </v-img>
+                        <v-card-title>
+                            {{ item.keyword }}
+                        </v-card-title>
+                        <v-card-subtitle>
+                            {{ item.platform }}
+                            <v-switch
+                                v-model="item.state"
+                                :true-value=1
+                                :false-value=0
+                                color="#E00051"
+                                @change="changeState(item.id)"
+                            ></v-switch>
+                        </v-card-subtitle>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </div>
         <v-pagination
             class="mt-5"
             v-model="page"
@@ -102,12 +95,28 @@ export default {
             page: 1,
             last_page: 1,
             color: '',
+            selected: false,
+            checked: [],
+            count: 0,
+            search: '',
         }
     },
     watch: {
+        checked(v) {
+            let result = true;
+
+            v.forEach((selected) => {
+                if (!selected) {
+                    result = false
+                }
+            })
+            this.selected = result
+        },
         page() {
             this.getData()
-        }
+            this.selected = false;
+            this.checked = [];
+        },
     },
     mounted() {
         this.getData();
@@ -116,8 +125,15 @@ export default {
         getData() {
             let result = [];
             let media = '';
+            let axios_url = '';
+            let url = 'https://chuncheon.blob.core.windows.net/chuncheon/';
             this.loading = true
-            this.axios.get('api/v1/articles?page=' + this.page + '&per_page=10&media_id=1')
+            if (this.search) {
+                axios_url = 'api/v1/articles?page=' + this.page + '&per_page=10&media_id=1&search=%23' + this.search;
+            } else {
+                axios_url = 'api/v1/articles?page=' + this.page + '&per_page=10&media_id=1';
+            }
+            this.axios.get(axios_url)
                 .then(res => {
                     if (res.data.data.articles.length > 0) {
                         res.data.data.articles.map((item, index) => {
@@ -139,14 +155,21 @@ export default {
                                 date: item.date,
                                 state: item.state,
                                 has_media: media,
-                                storage_thumbnail_url: "https://chuncheon.blob.core.windows.net/chuncheon/" + item.storage_thumbnail_url,
+                                storage_thumbnail_url: url + item.storage_thumbnail_url,
                             })
                         })
                     }
                     this.items = result;
-                    console.log(res.data.data);
-                    this.last_page = Math.floor(res.data.data.totalCount / 10) + 1;
+                    this.count = this.items.length;
+                    if (Number.isInteger(res.data.data.totalCount / 10) == false) {
+                        this.last_page = Math.floor(res.data.data.totalCount / 10) + 1;
+                    } else {
+                        this.last_page = res.data.data.totalCount / 10
+                    }
                     this.loading = false
+                    for (let i = 0; i < this.count; i++) {
+                        this.$set(this.checked, i, false)
+                    }
                 })
                 .catch(err => {
                     console.error(err);
@@ -167,6 +190,29 @@ export default {
                 console.error(err);
             });
         },
+        selectAll() {
+            for (const i in this.checked) {
+                this.checked[i] = !this.selected
+            }
+        },
+        changeAllState() {
+            // if (!confirm("상태를 변경하시겠습니까?")) return false
+            this.items.forEach(function (event) {
+                const data = {
+                    state: event.state
+                };
+                this.axios.put('api/v1/articles/' + event.id + '/state', data).then(res => {
+                    this.getData();
+                    console.log(res);
+                }).catch(err => {
+                    console.error(err);
+                });
+            });
+        },
+        data_search() {
+            this.getData();
+            this.page = 1;
+        }
     }
 }
 </script>
