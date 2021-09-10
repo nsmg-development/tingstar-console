@@ -1,6 +1,7 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
+        <MediaSelectBox @medias="media_ids"/>
         <div>
             <div>
                 <v-row>
@@ -31,13 +32,14 @@
                     cols="12" sm="6" md="4" lg="3"
                     v-for="(item, i) in items" :key="i"
                 >
-                    <v-card>
+                    <v-card height="100%">
                         <input type="checkbox" class="checked" v-model="checked[i]"/>
                         <v-img
+                            v-if="item.storage_thumbnail_url"
                             class="row-pointer"
-                            height="200px"
                             :src="item.storage_thumbnail_url"
                             @click="handleClick(item)"
+                            height="180px"
                         >
                         </v-img>
                         <v-card-title>
@@ -71,10 +73,12 @@
 
 <script>
 import Breadcrumbs from "../components/Breadcrumbs";
+import MediaSelectBox from "../components/MediaSelectBox";
 
 export default {
     components: {
         Breadcrumbs,
+        MediaSelectBox
     },
     data() {
         return {
@@ -93,12 +97,14 @@ export default {
                 {state: '미게시', value: 2},
             ],
             page: 1,
+            per_page: 10,
             last_page: 1,
             color: '',
             selected: false,
             checked: [],
             count: 0,
             search: '',
+            media_id: 1,
         }
     },
     watch: {
@@ -119,31 +125,31 @@ export default {
         },
     },
     mounted() {
-        this.getData();
+        this.media_ids();
     },
     methods: {
-        getData() {
+        getData(media) {
             let result = [];
-            let media = '';
             let axios_url = '';
+            let img = '';
             let url = 'https://chuncheon.blob.core.windows.net/chuncheon/';
+            let media_id = 1;
+            if (typeof media === "undefined") {
+                media_id = 1;
+            } else {
+                media_id = media
+            }
             this.loading = true
             if (this.search) {
-                axios_url = 'api/v1/articles?page=' + this.page + '&per_page=10&media_id=1&search=%23' + this.search;
+                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + media_id + '&search=%23' + this.search;
             } else {
-                axios_url = 'api/v1/articles?page=' + this.page + '&per_page=10&media_id=1';
+                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + media_id;
             }
             this.axios.get(axios_url)
                 .then(res => {
                     if (res.data.data.articles.length > 0) {
                         res.data.data.articles.map((item, index) => {
-                            if (item.has_media == true) {
-                                media = 'Y'
-                                this.color = '#E00051'
-                            } else {
-                                media = 'N'
-                                this.color = 'grey'
-                            }
+                            if(item.storage_thumbnail_url) {img = url + item.storage_thumbnail_url;} else {img = './images/no-image.png';}
                             result.push({
                                 no: index + 1,
                                 id: item.id,
@@ -155,7 +161,7 @@ export default {
                                 date: item.date,
                                 state: item.state,
                                 has_media: media,
-                                storage_thumbnail_url: url + item.storage_thumbnail_url,
+                                storage_thumbnail_url: img,
                             })
                         })
                     }
@@ -212,7 +218,10 @@ export default {
         data_search() {
             this.getData();
             this.page = 1;
-        }
+        },
+        media_ids(media) {
+            this.getData(media);
+        },
     }
 }
 </script>
