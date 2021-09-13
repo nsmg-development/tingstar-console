@@ -119,13 +119,13 @@ export default {
             this.selected = result
         },
         page() {
-            this.getData()
+            this.getData(this.media_id);
             this.selected = false;
             this.checked = [];
         },
     },
     mounted() {
-        this.media_ids();
+        this.getData();
     },
     methods: {
         getData(media) {
@@ -216,11 +216,14 @@ export default {
             });
         },
         data_search() {
-            this.getData();
+            this.getData(this.media_id);
             this.page = 1;
         },
         media_ids(media) {
             this.getData(media);
+            this.media_id = media;
+            this.page = 1;
+            this.search = '';
         },
     }
 }
