@@ -15,6 +15,7 @@
                             :false-value=0
                             color="#E00051"
                             @change="changeAllState()"
+                            label="노출 설정"
                         ></v-switch>
                     </v-col>
                     <v-col>
@@ -33,7 +34,7 @@
                     v-for="(item, i) in items" :key="i"
                 >
                     <v-card height="100%">
-                        <input type="checkbox" class="checked" v-model="checked[i]"/>
+                        <input type="checkbox" class="ml-1" v-model="checked[i]"/>
                         <v-img
                             v-if="item.storage_thumbnail_url"
                             class="row-pointer"
@@ -55,6 +56,9 @@
                                 @change="changeState(item.id)"
                             ></v-switch>
                         </v-card-subtitle>
+                        <v-card-text>
+                            {{ item.contents }}
+                        </v-card-text>
                     </v-card>
                 </v-col>
             </v-row>
@@ -149,7 +153,21 @@ export default {
                 .then(res => {
                     if (res.data.data.articles.length > 0) {
                         res.data.data.articles.map((item, index) => {
-                            if(item.storage_thumbnail_url) {img = url + item.storage_thumbnail_url;} else {img = './images/no-image.png';}
+                            if (item.storage_thumbnail_url) {
+                                img = url + item.storage_thumbnail_url;
+                            } else {
+                                if(item.article_medias[0]) {
+                                    img = url + item.article_medias[0].storage_url;
+                                } else {
+                                    img = './images/no-image.png';
+                                }
+                            }
+                            let contents = '';
+                            if(item.contents.length > 50) {
+                                contents = item.contents.substr(0,50) + '...'
+                            } else {
+                                contents = item.contents.substr(0,50);
+                            }
                             result.push({
                                 no: index + 1,
                                 id: item.id,
@@ -160,8 +178,8 @@ export default {
                                 url: item.url,
                                 date: item.date,
                                 state: item.state,
-                                has_media: media,
                                 storage_thumbnail_url: img,
+                                contents: contents,
                             })
                         })
                     }
