@@ -1,9 +1,8 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
-
         <v-card class="mb-5">
-            <v-icon large color="#E00051">mdi-clipboard-text</v-icon>
+            <v-icon large color="#E00051" class="ml-3">mdi-clipboard-text</v-icon> 상세정보
             <v-card-title>
                 <v-row>
                     <v-col>
@@ -127,7 +126,7 @@
             </v-card-title>
         </v-card>
         <v-card class="mb-5">
-            <v-icon large color="#E00051">mdi-account</v-icon>
+            <v-icon large color="#E00051" class="ml-3">mdi-account</v-icon> 게시자 정보
             <v-card-title>
                 <v-row>
                     <v-col>
@@ -200,12 +199,15 @@
                 sort-by="calories"
                 class="elevation-1"
             >
+                <template v-slot:item.storage_url="{ item }">
+                    <img :src="item.storage_url" style="width: 60px; height: 60px" class="mt-2" v-if="item.storage_url"/>
+                </template>
                 <template v-slot:top>
                     <v-toolbar
                         flat
                     >
                         <v-toolbar-title>
-                            <v-icon large color="#E00051">mdi-file</v-icon>
+                            <v-icon large color="#E00051">mdi-file</v-icon> 미디어
                         </v-toolbar-title>
                         <v-divider
                             class="mx-4"
@@ -232,7 +234,7 @@ export default {
             loading: false,
             breadcrumbs: [
                 {
-                    text: '수집정보 리스트',
+                    text: '수집정보 리스트 (뒤로가기)',
                     disabled: false,
                     href: '/',
                 },
@@ -244,8 +246,8 @@ export default {
             ],
             headers: [
                 {text: '타입', value: 'type', sortable: false},
+                {text: '스토리지 이미지', value: 'storage_url', sortable: false},
                 {text: 'URL', value: 'url', sortable: false},
-                {text: '스토리지 URL', value: 'storage_url', sortable: false},
                 {text: '넓이', value: 'width', sortable: false},
                 {text: '높이', value: 'height', sortable: false},
             ],
@@ -260,6 +262,7 @@ export default {
     },
     methods: {
         getData() {
+            let url = 'https://chuncheon.blob.core.windows.net/chuncheon/';
             this.loading = true
             this.axios.get('api/v1/articles/' + this.$route.params.id)
                 .then(res => {
@@ -270,7 +273,7 @@ export default {
                                 id: item.article_id,
                                 type: item.type,
                                 url: item.url,
-                                storage_url: item.storage_url,
+                                storage_url: item.storage_url ? url + item.storage_url : '',
                                 width: item.width,
                                 height: item.height
                             }
