@@ -6,9 +6,9 @@
             <div>
                 <v-row>
                     <v-col>
-                    <span class="checkbox"
-                          style="display:inline-block; padding: 15px 15px 10px 5px; margin-top: 7px; float: left">
-                        <input type="checkbox" id="allcheck" v-model="selected" @click="selectAll()"/>
+                    <span class="ml-1"
+                          style="display:inline-block; float: left">
+                        <v-checkbox v-model="selected" @click="selectAll()"/>
                     </span>
                         <v-switch
                             :true-value=1
@@ -16,6 +16,8 @@
                             color="#E00051"
                             @change="changeAllState()"
                             label="노출 설정"
+                            v-model="state"
+                            style="width: 200px"
                         ></v-switch>
                     </v-col>
                     <v-col>
@@ -34,7 +36,7 @@
                     v-for="(item, i) in items" :key="i"
                 >
                     <v-card height="100%">
-                        <input type="checkbox" class="ml-1" v-model="checked[i]"/>
+                        <v-checkbox class="ml-1" v-model="checked[i]" :key="item.id" :value="item.id"/>
                         <v-img
                             v-if="item.storage_thumbnail_url"
                             class="row-pointer"
@@ -44,7 +46,7 @@
                         >
                         </v-img>
                         <v-card-title>
-                            {{ item.keyword }}
+                            {{ item.keyword }} . {{ item.id }}
                         </v-card-title>
                         <v-card-subtitle>
                             {{ item.platform }}
@@ -109,6 +111,7 @@ export default {
             count: 0,
             search: '',
             media_id: 1,
+            state: 0,
         }
     },
     watch: {
@@ -117,7 +120,7 @@ export default {
 
             v.forEach((selected) => {
                 if (!selected) {
-                    result = false
+                    result = false;
                 }
             })
             this.selected = result
@@ -156,17 +159,17 @@ export default {
                             if (item.storage_thumbnail_url) {
                                 img = url + item.storage_thumbnail_url;
                             } else {
-                                if(item.article_medias[0]) {
+                                if (item.article_medias[0]) {
                                     img = url + item.article_medias[0].storage_url;
                                 } else {
                                     img = './images/no-image.png';
                                 }
                             }
                             let contents = '';
-                            if(item.contents.length > 50) {
-                                contents = item.contents.substr(0,50) + '...'
+                            if (item.contents.length > 50) {
+                                contents = item.contents.substr(0, 50) + '...'
                             } else {
-                                contents = item.contents.substr(0,50);
+                                contents = item.contents.substr(0, 50);
                             }
                             result.push({
                                 no: index + 1,
@@ -194,6 +197,12 @@ export default {
                     for (let i = 0; i < this.count; i++) {
                         this.$set(this.checked, i, false)
                     }
+                    let hasAdmin = res.data.data.articles.some(user => user.state === 0);
+                    if(hasAdmin === true) {
+                        this.state = 0
+                    } else {
+                        this.state = 1
+                    }
                 })
                 .catch(err => {
                     console.error(err);
@@ -214,24 +223,33 @@ export default {
                 console.error(err);
             });
         },
-        selectAll() {
-            for (const i in this.checked) {
-                this.checked[i] = !this.selected
-            }
-        },
         changeAllState() {
             // if (!confirm("상태를 변경하시겠습니까?")) return false
-            this.items.forEach(function (event) {
-                const data = {
-                    state: event.state
-                };
-                this.axios.put('api/v1/articles/' + event.id + '/state', data).then(res => {
-                    this.getData();
-                    console.log(res);
-                }).catch(err => {
-                    console.error(err);
-                });
+            // const item = this.items.map(e=>e.id)
+
+            const articleIds = this.checked.filter(chk => chk !== false);
+            console.log(articleIds);
+            if(!articleIds) {
+                alert('게시물을 선택해 주세요.')
+            }
+            const data = {
+                article_ids: articleIds,
+                state: this.state
+            }
+
+            this.axios.put('api/v1/articles', data).then(res => {
+                this.getData();
+                console.log(res);
+            }).catch(err => {
+                console.error(err);
             });
+        },
+        selectAll() {
+            if(this.selected) {
+                this.checked = this.items.map(v => v.id);
+            } else {
+                this.checked = [];
+            }
         },
         data_search() {
             this.getData(this.media_id);
