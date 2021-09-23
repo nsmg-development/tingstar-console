@@ -46,7 +46,7 @@
                         >
                         </v-img>
                         <v-card-title>
-                            {{ item.keyword }} . {{ item.id }}
+                            {{ item.keyword }}
                         </v-card-title>
                         <v-card-subtitle>
                             {{ item.platform }}
@@ -66,7 +66,7 @@
             </v-row>
         </div>
         <v-pagination
-            class="mt-5"
+            class="mt-10 mb-5"
             v-model="page"
             :length="last_page"
             color="#E00051"
