@@ -102,7 +102,7 @@ export default {
                 {state: '게시', value: 1},
                 {state: '미게시', value: 2},
             ],
-            page: 1,
+            page:  Number(this.$route.params.page) || 1,
             per_page: 10,
             last_page: 1,
             color: '',
@@ -133,6 +133,7 @@ export default {
     },
     mounted() {
         this.getData();
+        console.log(this.$route.params)
     },
     methods: {
         getData(media) {
@@ -209,7 +210,7 @@ export default {
                 });
         },
         handleClick(value) {
-            this.$router.push({name: 'ArticleShow', params: {id: value.id}});
+            this.$router.push({name: 'ArticleShow', params: {id: value.id} , query:{page:this.page, search: this.search}});
         },
         changeState(id) {
             const item = this.items.filter(item => item.id === id)[0];
