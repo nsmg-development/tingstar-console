@@ -102,8 +102,8 @@ export default {
                 {state: '게시', value: 1},
                 {state: '미게시', value: 2},
             ],
-            page:  Number(this.$route.params.page) || 1,
-            per_page: 10,
+            page:  1,
+            per_page: 36,
             last_page: 1,
             color: '',
             selected: false,
@@ -133,7 +133,6 @@ export default {
     },
     mounted() {
         this.getData();
-        console.log(this.$route.params)
     },
     methods: {
         getData(media) {
