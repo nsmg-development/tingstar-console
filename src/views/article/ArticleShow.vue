@@ -234,10 +234,20 @@ export default {
             loading: false,
             breadcrumbs: [
                 {
+
                     text: '수집정보 리스트 (뒤로가기)',
                     disabled: false,
-                    href: '/',
+                    link: true,
+                    exact: true,
+                    to: {
+                        name: 'Home',
+                        params: {
+                            page: this.$route.query.page,
+                            search: this.$route.query.search
+                        }
+                    }
                 },
+
                 {
                     text: '수집정보 상세보기',
                     disabled: false,
@@ -259,6 +269,7 @@ export default {
     },
     mounted() {
         this.getData();
+        console.log(this.$route.query);
     },
     methods: {
         getData() {
