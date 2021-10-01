@@ -236,16 +236,10 @@ export default {
                 {
 
                     text: '수집정보 리스트 (뒤로가기)',
+                    value: 'back',
                     disabled: false,
                     link: true,
                     exact: true,
-                    to: {
-                        name: 'Home',
-                        params: {
-                            page: this.$route.query.page,
-                            search: this.$route.query.search
-                        }
-                    }
                 },
 
                 {

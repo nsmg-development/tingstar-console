@@ -73,6 +73,7 @@
             prev-icon="mdi-chevron-left"
             next-icon="mdi-chevron-right"
             :total-visible="10"
+            @input="moveToPage()"
         ></v-pagination>
     </v-container>
 </template>
@@ -102,7 +103,7 @@ export default {
                 {state: '게시', value: 1},
                 {state: '미게시', value: 2},
             ],
-            page:  1,
+            page: 1,
             per_page: 36,
             last_page: 1,
             color: '',
@@ -125,16 +126,20 @@ export default {
             })
             this.selected = result
         },
-        page() {
-            this.getData(this.media_id);
-            this.selected = false;
-            this.checked = [];
-        },
     },
     mounted() {
+        const page = this.$route.query?.page || null;
+        if (page) {
+            this.page = parseInt(page);
+        } else {
+            this.moveToPage(1);
+        }
         this.getData();
     },
     methods: {
+        moveToPage(page = this.page){
+           window.location.href = `/?page=${page}`;
+        },
         getData(media) {
             let result = [];
             let axios_url = '';
@@ -198,7 +203,7 @@ export default {
                         this.$set(this.checked, i, false)
                     }
                     let hasAdmin = res.data.data.articles.some(user => user.state === 0);
-                    if(hasAdmin === true) {
+                    if (hasAdmin === true) {
                         this.state = 0
                     } else {
                         this.state = 1
@@ -209,7 +214,10 @@ export default {
                 });
         },
         handleClick(value) {
-            this.$router.push({name: 'ArticleShow', params: {id: value.id} , query:{page:this.page, search: this.search}});
+            this.$router.push({
+                name: 'ArticleShow',
+                params: {id: value.id},
+            });
         },
         changeState(id) {
             const item = this.items.filter(item => item.id === id)[0];
@@ -229,7 +237,7 @@ export default {
 
             const articleIds = this.checked.filter(chk => chk !== false);
             console.log(articleIds);
-            if(!articleIds) {
+            if (!articleIds) {
                 alert('게시물을 선택해 주세요.')
             }
             const data = {
@@ -245,7 +253,7 @@ export default {
             });
         },
         selectAll() {
-            if(this.selected) {
+            if (this.selected) {
                 this.checked = this.items.map(v => v.id);
             } else {
                 this.checked = [];
