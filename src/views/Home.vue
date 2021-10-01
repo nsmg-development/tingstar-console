@@ -3,14 +3,16 @@
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <MediaSelectBox @medias="(mediaId)=>{
             this.mediaId = mediaId;
+            this.page = 1;
+            this.search = '';
             moveToPage();
         }"/>
         <div>
             <div>
                 <v-row>
                     <v-col>
-                    <span class="ml-1"
-                          style="display:inline-block; float: left">
+                        <span class="ml-1"
+                              style="display:inline-block; float: left">
                         <v-checkbox v-model="selected" @click="selectAll()"/>
                     </span>
                         <v-switch
@@ -23,14 +25,41 @@
                             style="width: 200px"
                         ></v-switch>
                     </v-col>
-                    <v-col>
-                        <v-text-field
-                            label="검색"
-                            append-icon="search"
-                            v-model="search"
-                            @keyup.native.enter="data_search"
-                        ></v-text-field>
-                    </v-col>
+<!--                    <v-select-->
+<!--                        :items="platform_items"-->
+<!--                        v-model="platform"-->
+<!--                        label="플랫폼"-->
+<!--                        item-text="platform"-->
+<!--                        item-value="value"-->
+<!--                        style="width: 80px"-->
+<!--                        @change="platformChange(platform)"-->
+<!--                    ></v-select>-->
+<!--                    <v-select-->
+<!--                        :items="type_items"-->
+<!--                        v-model="type"-->
+<!--                        label="타입"-->
+<!--                        item-text="type"-->
+<!--                        item-value="value"-->
+<!--                        style="width: 80px"-->
+<!--                        @change="typeChange(type)"-->
+<!--                    ></v-select>-->
+<!--                    <v-select-->
+<!--                        :items="state_items"-->
+<!--                        v-model="article_state"-->
+<!--                        label="노출상태"-->
+<!--                        item-text="state"-->
+<!--                        item-value="value"-->
+<!--                        style="width: 80px"-->
+<!--                        @change="stateChange(article_state)"-->
+<!--                    ></v-select>-->
+                    <v-text-field
+                        label="검색"
+                        append-icon="search"
+                        v-model="search"
+                        style="width: 200px"
+                        @keyup.native.enter="data_search(search)"
+                    ></v-text-field>
+
                 </v-row>
             </div>
             <v-row>
@@ -101,10 +130,19 @@ export default {
                 },
             ],
             items: [],
+            platform_items: [
+                {platform: '인스타그램', value: 'instagram'},
+                {platform: '유튜브', value: 'youtube'},
+                {platform: '네이버블로그', value: 'naver-blog'},
+                {platform: '트위터', value: 'twitter'},
+            ],
+            type_items: [
+                {type: '키워드', value: 'keyword'},
+                {type: '채널', value: 'channel'},
+            ],
             state_items: [
-                {state: '미설정', value: 0},
                 {state: '게시', value: 1},
-                {state: '미게시', value: 2},
+                {state: '미게시', value: 0},
             ],
             page: 1,
             per_page: 36,
@@ -116,6 +154,9 @@ export default {
             search: '',
             mediaId: null,
             state: 0,
+            platform: '',
+            type: '',
+            article_state: null,
         }
     },
     watch: {
@@ -133,10 +174,25 @@ export default {
     mounted() {
         this.checkPage();
         this.checkMedia();
+        if (this.$route.query.search) {
+            this.data_search();
+        }
+        if(this.$route.query.state) {
+            this.article_state = parseInt(this.$route.query.state)
+        }
+        // else if(this.$route.query.platform) {
+        //     this.platform = this.$route.query.platform;
+        // } else if(this.$route.query.type) {
+        //     this.type = this.$route.query.type;
+        // } else if(this.$route.query.type && this.$route.query.platform) {
+        //     this.platform = this.$route.query.platform;
+        //     this.type = this.$route.query.type;
+        // }
         this.getData();
+        console.log(this.$route.query);
     },
     methods: {
-        checkPage(){
+        checkPage() {
             const page = this.$route.query?.page || null;
             if (page) {
                 this.page = parseInt(page);
@@ -145,7 +201,7 @@ export default {
                 this.moveToPage();
             }
         },
-        checkMedia(){
+        checkMedia() {
             const mediaId = this.$route.query?.media_id || null;
             if (mediaId) {
                 this.mediaId = parseInt(mediaId);
@@ -154,8 +210,22 @@ export default {
                 this.moveToPage();
             }
         },
-        moveToPage(){
-           window.location.href = `/?page=${this.page}&media_id=${this.mediaId}`;
+        moveToPage() {
+            if (this.search) {
+                window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&search=${this.search}`;
+            } else if(this.article_state) {
+                window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&state=${parseInt(this.article_state)}`;
+            }
+            // else if(this.platform) {
+            //     window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&platform=${this.platform}`;
+            // } else if(this.type) {
+            //     window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&type=${this.type}`;
+            // } else if(this.platform && this.type) {
+            //     window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&type=${this.type}&platform=${this.platform}`;
+            // }
+             else {
+                window.location.href = `/?page=${this.page}&media_id=${this.mediaId}`;
+            }
         },
         getData() {
             let result = [];
@@ -163,10 +233,25 @@ export default {
             let img = '';
             let url = 'https://chuncheon.blob.core.windows.net/chuncheon/';
             this.loading = true
-            if (this.search) {
-                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + this.$route.query.media_id + '&search=%23' + this.search;
-            } else {
-                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + this.$route.query.media_id;
+            let base_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + this.$route.query.media_id;
+            let search_url = '&search=%23' + this.$route.query.search;
+            let state_url = '&state=' + parseInt(this.article_state);
+            // let platform_url = '&platform=' + this.platform;
+            // let type_url = '&type=' + this.type;
+            if (this.$route.query.search) {
+                axios_url = base_url + search_url;
+            } else if(this.article_state) {
+                axios_url = base_url + state_url;
+            }
+            // else if(this.platform) {
+            //     axios_url = base_url + platform_url;
+            // } else if(this.type) {
+            //     axios_url = base_url + type_url;
+            // } else if(this.platform && this.type) {
+            //     axios_url = base_url + platform_url + type_url;
+            // }
+            else {
+                axios_url = base_url
             }
             this.axios.get(axios_url)
                 .then(res => {
@@ -252,7 +337,6 @@ export default {
                 article_ids: articleIds,
                 state: this.state
             }
-
             this.axios.put('api/v1/articles', data).then(res => {
                 this.getData();
                 console.log(res);
@@ -268,9 +352,26 @@ export default {
             }
         },
         data_search() {
-            this.getData(this.media);
-            this.page = 1;
+            const txt = this.$route.query?.search || null;
+            if (txt) {
+                this.search = txt;
+            } else {
+                this.page = 1;
+                this.moveToPage();
+            }
         },
+        platformChange() {
+            this.page = 1;
+            this.moveToPage()
+        },
+        typeChange() {
+            this.page = 1;
+            this.moveToPage();
+        },
+        stateChange() {
+            this.page = 1;
+            this.moveToPage();
+        }
     }
 }
 </script>
