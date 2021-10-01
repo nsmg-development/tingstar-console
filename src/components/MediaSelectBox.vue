@@ -18,13 +18,19 @@ export default {
             media: 1,
         }
     },
-    mounted() {
-        this.getData()
+    async mounted() {
+        await this.getData()
+        const media_id = this.$route.query.media_id || null;
+        if(media_id) {
+            this.media = parseInt(media_id)
+        } else {
+            this.media = 1
+        }
     },
     methods: {
         getData() {
             this.loading = true
-            this.axios.get('api/v1/medias')
+            return this.axios.get('api/v1/medias')
                 .then(res => {
                     this.items = res.data.data;
                     this.loading = false

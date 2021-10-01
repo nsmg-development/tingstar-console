@@ -1,7 +1,10 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
-        <MediaSelectBox @medias="media_ids"/>
+        <MediaSelectBox @medias="(mediaId)=>{
+            this.mediaId = mediaId;
+            moveToPage();
+        }"/>
         <div>
             <div>
                 <v-row>
@@ -111,7 +114,7 @@ export default {
             checked: [],
             count: 0,
             search: '',
-            media_id: 1,
+            mediaId: null,
             state: 0,
         }
     },
@@ -128,34 +131,42 @@ export default {
         },
     },
     mounted() {
-        const page = this.$route.query?.page || null;
-        if (page) {
-            this.page = parseInt(page);
-        } else {
-            this.moveToPage(1);
-        }
+        this.checkPage();
+        this.checkMedia();
         this.getData();
     },
     methods: {
-        moveToPage(page = this.page){
-           window.location.href = `/?page=${page}`;
+        checkPage(){
+            const page = this.$route.query?.page || null;
+            if (page) {
+                this.page = parseInt(page);
+            } else {
+                this.page = 1;
+                this.moveToPage();
+            }
         },
-        getData(media) {
+        checkMedia(){
+            const mediaId = this.$route.query?.media_id || null;
+            if (mediaId) {
+                this.mediaId = parseInt(mediaId);
+            } else {
+                this.mediaId = 1;
+                this.moveToPage();
+            }
+        },
+        moveToPage(){
+           window.location.href = `/?page=${this.page}&media_id=${this.mediaId}`;
+        },
+        getData() {
             let result = [];
             let axios_url = '';
             let img = '';
             let url = 'https://chuncheon.blob.core.windows.net/chuncheon/';
-            let media_id = 1;
-            if (typeof media === "undefined") {
-                media_id = 1;
-            } else {
-                media_id = media
-            }
             this.loading = true
             if (this.search) {
-                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + media_id + '&search=%23' + this.search;
+                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + this.$route.query.media_id + '&search=%23' + this.search;
             } else {
-                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + media_id;
+                axios_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + this.$route.query.media_id;
             }
             this.axios.get(axios_url)
                 .then(res => {
@@ -193,10 +204,10 @@ export default {
                     }
                     this.items = result;
                     this.count = this.items.length;
-                    if (Number.isInteger(res.data.data.totalCount / 10) == false) {
-                        this.last_page = Math.floor(res.data.data.totalCount / 10) + 1;
+                    if (Number.isInteger(res.data.data.totalCount / this.per_page) == false) {
+                        this.last_page = Math.floor(res.data.data.totalCount / this.per_page) + 1;
                     } else {
-                        this.last_page = res.data.data.totalCount / 10
+                        this.last_page = res.data.data.totalCount / this.per_page
                     }
                     this.loading = false
                     for (let i = 0; i < this.count; i++) {
@@ -232,9 +243,6 @@ export default {
             });
         },
         changeAllState() {
-            // if (!confirm("상태를 변경하시겠습니까?")) return false
-            // const item = this.items.map(e=>e.id)
-
             const articleIds = this.checked.filter(chk => chk !== false);
             console.log(articleIds);
             if (!articleIds) {
@@ -260,14 +268,8 @@ export default {
             }
         },
         data_search() {
-            this.getData(this.media_id);
+            this.getData(this.media);
             this.page = 1;
-        },
-        media_ids(media) {
-            this.getData(media);
-            this.media_id = media;
-            this.page = 1;
-            this.search = '';
         },
     }
 }
