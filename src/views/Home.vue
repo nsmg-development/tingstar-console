@@ -1,6 +1,8 @@
 <template>
     <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
+        <v-row>
+            <v-col>
         <MediaSelectBox @medias="(mediaId)=>{
             this.mediaId = mediaId;
             this.page = 1;
@@ -9,10 +11,77 @@
             this.type = '';
             this.state = '';
             this.search = '';
+            this.dateRanges[0] = '';
+            this.dateRanges[1] = '';
             moveToPage();
-        }"/>
+        }"
+        />
+            </v-col>
+        <v-icon class="mr-2 mb-6" @click="refresh">mdi-refresh</v-icon>
+        </v-row>
         <div>
             <div>
+                <v-row>
+                    <v-col>
+                        <v-menu
+                            v-model="datepicker"
+                        >
+                            <template v-slot:activator="{ on }">
+                                <v-btn
+                                    v-on="on"
+                                >
+                                    <v-icon class="mr-1">mdi-calendar</v-icon>
+                                    {{ dateRanges[0] }}
+                                </v-btn>
+                            </template>
+                            <v-date-picker
+                                v-model="dateRanges[0]"
+                                no-title
+                                locale="ko-kr"
+                                changeMonth="true"
+                            />
+                        </v-menu>
+                        ~
+                        <v-menu
+                            v-model="end_datepicker"
+                        >
+                            <template v-slot:activator="{ on }">
+                                <v-btn
+                                    v-on="on"
+                                >
+                                    <v-icon class="mr-1">mdi-calendar</v-icon>
+                                    {{ dateRanges[1] }}
+                                </v-btn>
+                            </template>
+                            <v-date-picker
+                                v-model="dateRanges[1]"
+                                no-title
+                                locale="ko-kr"
+                                changeMonth="true"
+                            />
+                        </v-menu>
+                        <v-btn class="white--text ml-2" color="#0A0C0C" @click="date_search()"> 검색 </v-btn>
+                    </v-col>
+                    <v-select
+                        :items="platform_items"
+                        v-model="platform"
+                        label="플랫폼"
+                        item-text="platform"
+                        item-value="value"
+                        @change="platformChange(platform)"
+                        style="width: 200px"
+                    ></v-select>
+                    <v-select
+                        :items="type_items"
+                        v-model="type"
+                        label="타입"
+                        item-text="type"
+                        item-value="value"
+                        @change="typeChange(type)"
+                        style="width: 200px"
+                        class="mr-3"
+                    ></v-select>
+                </v-row>
                 <v-row>
                     <v-col>
                         <span class="ml-1"
@@ -26,44 +95,25 @@
                             @change="changeAllState()"
                             label="노출 설정"
                             v-model="state"
-                            style="width: 190px"
                         ></v-switch>
                     </v-col>
-                        <v-select
-                            :items="platform_items"
-                            v-model="platform"
-                            label="플랫폼"
-                            item-text="platform"
-                            item-value="value"
-                            style="width: 60px"
-                            @change="platformChange(platform)"
-                        ></v-select>
-                        <v-select
-                            :items="type_items"
-                            v-model="type"
-                            label="타입"
-                            item-text="type"
-                            item-value="value"
-                            style="width: 60px"
-                            @change="typeChange(type)"
-                        ></v-select>
                     <v-select
                         :items="state_items"
                         v-model="article_state"
                         label="노출상태"
                         item-text="state"
                         item-value="value"
-                        style="width: 60px"
                         @change="stateChange(article_state)"
+                        style="width: 200px"
                     ></v-select>
                     <v-text-field
                         label="검색"
                         append-icon="search"
                         v-model="search"
-                        style="width: 100px"
                         @keyup.native.enter="data_search()"
+                        class="mr-3"
+                        style="width: 200px"
                     ></v-text-field>
-                    <v-icon style="width: 20px" class="mb-6" @click="refresh">mdi-refresh</v-icon>
                 </v-row>
             </div>
             <v-row
@@ -171,6 +221,11 @@ export default {
             platform: '',
             type: '',
             article_state: '',
+            datepicker: false,
+            end_datepicker: false,
+            date: '',
+            end_date: '',
+            dateRanges: [],
         }
     },
     watch: {
@@ -184,6 +239,13 @@ export default {
             })
             this.selected = result
         },
+        dateRanges: {
+            handler() {
+                if (this.dateRanges[0] > this.dateRanges[1]) {
+                    this.dateRanges.reverse()
+                }
+            }
+        }
     },
     mounted() {
         this.checkPage();
@@ -199,6 +261,11 @@ export default {
         }
         if (this.$route.query.type) {
             this.type = this.$route.query.type;
+        }
+
+        if(this.$route.query.start_date || this.$route.query.end_date) {
+            this.dateRanges[0] = this.$route.query.start_date;
+            this.dateRanges[1] = this.$route.query.end_date;
         }
 
         this.getData();
@@ -224,7 +291,7 @@ export default {
             }
         },
         moveToPage() {
-                window.location.href = `?page=${this.page}&per_page=${this.per_page}&media_id=${this.mediaId}&state=${this.article_state}&platform=${this.platform}&type=${this.type}&search=${this.search}`;
+            window.location.href = `?page=${this.page}&per_page=${this.per_page}&media_id=${this.mediaId}&state=${this.article_state}&platform=${this.platform}&type=${this.type}&search=${this.search}&start_date=${this.dateRanges[0] ?? ''}&end_date=${this.dateRanges[1] ?? ''}`;
         },
         getData() {
             let result = [];
@@ -233,13 +300,15 @@ export default {
             this.loading = true
             this.axios.get('api/v1/admin/articles', {
                 params: {
-                    'page' : this.page,
+                    'page': this.page,
                     'per_page': this.per_page,
                     'media_id': this.mediaId,
                     'state': this.article_state ?? '',
                     'type': this.type ? this.type : '',
                     'search': this.search ? '#' + this.search : '',
-                    'platform': this.platform ? '#' + this.platform: '',
+                    'platform': this.platform ? '#' + this.platform : '',
+                    'start_date': this.dateRanges ?  this.dateRanges[0] : '',
+                    'end_date': this.dateRanges ? this.dateRanges[1] : '',
                 }
             })
                 .then(res => {
@@ -292,7 +361,7 @@ export default {
                     } else {
                         this.state = 1
                     }
-                    if(this.items.length === 0 ) {
+                    if (this.items.length === 0) {
                         this.state = 0;
                     }
                 })
@@ -366,6 +435,11 @@ export default {
             this.type = '';
             this.state = '';
             this.search = '';
+            this.dateRanges[0] = '';
+            this.dateRanges[1] = '';
+            this.moveToPage();
+        },
+        date_search() {
             this.moveToPage();
         }
     }
