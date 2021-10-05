@@ -66,7 +66,13 @@
                     <v-icon style="width: 20px" class="mb-6" @click="refresh">mdi-refresh</v-icon>
                 </v-row>
             </div>
-            <v-row>
+            <v-row
+                v-if="this.items.length === 0"
+                justify="center" align="center"
+            >
+                데이터가 존재하지 않습니다.
+            </v-row>
+            <v-row v-else>
                 <v-col
                     cols="12" sm="6" md="4" lg="3"
                     v-for="(item, i) in items" :key="i"
@@ -100,6 +106,7 @@
                     </v-card>
                 </v-col>
             </v-row>
+
         </div>
         <v-pagination
             class="mt-10 mb-5"
@@ -135,16 +142,19 @@ export default {
             ],
             items: [],
             platform_items: [
+                {platform: '전체', value: ''},
                 {platform: '인스타그램', value: 'instagram'},
                 {platform: '유튜브', value: 'youtube'},
                 {platform: '네이버블로그', value: 'naver-blog'},
                 {platform: '트위터', value: 'twitter'},
             ],
             type_items: [
+                {type: '전체', value: ''},
                 {type: '키워드', value: 'keyword'},
                 {type: '채널', value: 'channel'},
             ],
             state_items: [
+                {state: '전체', value: ''},
                 {state: '게시', value: 1},
                 {state: '미게시', value: 0},
             ],
@@ -282,6 +292,9 @@ export default {
                     } else {
                         this.state = 1
                     }
+                    if(this.items.length === 0 ) {
+                        this.state = 0;
+                    }
                 })
                 .catch(err => {
                     console.error(err);
@@ -331,7 +344,7 @@ export default {
         },
 
         data_search() {
-            this.getData();
+            this.moveToPage();
         },
         platformChange() {
             this.page = 1;
