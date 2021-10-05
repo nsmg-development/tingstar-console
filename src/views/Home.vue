@@ -4,6 +4,10 @@
         <MediaSelectBox @medias="(mediaId)=>{
             this.mediaId = mediaId;
             this.page = 1;
+            this.per_page = 36;
+            this.platform = '';
+            this.type = '';
+            this.state = '';
             this.search = '';
             moveToPage();
         }"/>
@@ -22,44 +26,44 @@
                             @change="changeAllState()"
                             label="노출 설정"
                             v-model="state"
-                            style="width: 200px"
+                            style="width: 190px"
                         ></v-switch>
                     </v-col>
-<!--                    <v-select-->
-<!--                        :items="platform_items"-->
-<!--                        v-model="platform"-->
-<!--                        label="플랫폼"-->
-<!--                        item-text="platform"-->
-<!--                        item-value="value"-->
-<!--                        style="width: 80px"-->
-<!--                        @change="platformChange(platform)"-->
-<!--                    ></v-select>-->
-<!--                    <v-select-->
-<!--                        :items="type_items"-->
-<!--                        v-model="type"-->
-<!--                        label="타입"-->
-<!--                        item-text="type"-->
-<!--                        item-value="value"-->
-<!--                        style="width: 80px"-->
-<!--                        @change="typeChange(type)"-->
-<!--                    ></v-select>-->
-<!--                    <v-select-->
-<!--                        :items="state_items"-->
-<!--                        v-model="article_state"-->
-<!--                        label="노출상태"-->
-<!--                        item-text="state"-->
-<!--                        item-value="value"-->
-<!--                        style="width: 80px"-->
-<!--                        @change="stateChange(article_state)"-->
-<!--                    ></v-select>-->
+                        <v-select
+                            :items="platform_items"
+                            v-model="platform"
+                            label="플랫폼"
+                            item-text="platform"
+                            item-value="value"
+                            style="width: 60px"
+                            @change="platformChange(platform)"
+                        ></v-select>
+                        <v-select
+                            :items="type_items"
+                            v-model="type"
+                            label="타입"
+                            item-text="type"
+                            item-value="value"
+                            style="width: 60px"
+                            @change="typeChange(type)"
+                        ></v-select>
+                    <v-select
+                        :items="state_items"
+                        v-model="article_state"
+                        label="노출상태"
+                        item-text="state"
+                        item-value="value"
+                        style="width: 60px"
+                        @change="stateChange(article_state)"
+                    ></v-select>
                     <v-text-field
                         label="검색"
                         append-icon="search"
                         v-model="search"
-                        style="width: 200px"
-                        @keyup.native.enter="data_search(search)"
+                        style="width: 100px"
+                        @keyup.native.enter="data_search()"
                     ></v-text-field>
-
+                    <v-icon style="width: 20px" class="mb-6" @click="refresh">mdi-refresh</v-icon>
                 </v-row>
             </div>
             <v-row>
@@ -156,7 +160,7 @@ export default {
             state: 0,
             platform: '',
             type: '',
-            article_state: null,
+            article_state: '',
         }
     },
     watch: {
@@ -175,19 +179,18 @@ export default {
         this.checkPage();
         this.checkMedia();
         if (this.$route.query.search) {
-            this.data_search();
+            this.search = this.$route.query.search;
         }
-        if(this.$route.query.state) {
-            this.article_state = parseInt(this.$route.query.state)
+        if (this.$route.query.state) {
+            this.article_state = parseInt(this.$route.query.state);
         }
-        // else if(this.$route.query.platform) {
-        //     this.platform = this.$route.query.platform;
-        // } else if(this.$route.query.type) {
-        //     this.type = this.$route.query.type;
-        // } else if(this.$route.query.type && this.$route.query.platform) {
-        //     this.platform = this.$route.query.platform;
-        //     this.type = this.$route.query.type;
-        // }
+        if (this.$route.query.platform) {
+            this.platform = this.$route.query.platform;
+        }
+        if (this.$route.query.type) {
+            this.type = this.$route.query.type;
+        }
+
         this.getData();
         console.log(this.$route.query);
     },
@@ -211,49 +214,24 @@ export default {
             }
         },
         moveToPage() {
-            if (this.search) {
-                window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&search=${this.search}`;
-            } else if(this.article_state) {
-                window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&state=${parseInt(this.article_state)}`;
-            }
-            // else if(this.platform) {
-            //     window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&platform=${this.platform}`;
-            // } else if(this.type) {
-            //     window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&type=${this.type}`;
-            // } else if(this.platform && this.type) {
-            //     window.location.href = `/?page=${this.page}&media_id=${this.mediaId}&type=${this.type}&platform=${this.platform}`;
-            // }
-             else {
-                window.location.href = `/?page=${this.page}&media_id=${this.mediaId}`;
-            }
+                window.location.href = `?page=${this.page}&per_page=${this.per_page}&media_id=${this.mediaId}&state=${this.article_state}&platform=${this.platform}&type=${this.type}&search=${this.search}`;
         },
         getData() {
             let result = [];
-            let axios_url = '';
             let img = '';
             let url = 'https://chuncheon.blob.core.windows.net/chuncheon/';
             this.loading = true
-            let base_url = 'api/v1/admin/articles?page=' + this.page + '&per_page=' + this.per_page + '&media_id=' + this.$route.query.media_id;
-            let search_url = '&search=%23' + this.$route.query.search;
-            let state_url = '&state=' + parseInt(this.article_state);
-            // let platform_url = '&platform=' + this.platform;
-            // let type_url = '&type=' + this.type;
-            if (this.$route.query.search) {
-                axios_url = base_url + search_url;
-            } else if(this.article_state) {
-                axios_url = base_url + state_url;
-            }
-            // else if(this.platform) {
-            //     axios_url = base_url + platform_url;
-            // } else if(this.type) {
-            //     axios_url = base_url + type_url;
-            // } else if(this.platform && this.type) {
-            //     axios_url = base_url + platform_url + type_url;
-            // }
-            else {
-                axios_url = base_url
-            }
-            this.axios.get(axios_url)
+            this.axios.get('api/v1/admin/articles', {
+                params: {
+                    'page' : this.page,
+                    'per_page': this.per_page,
+                    'media_id': this.mediaId,
+                    'state': this.article_state ?? '',
+                    'type': this.type ? this.type : '',
+                    'search': this.search ? '#' + this.search : '',
+                    'platform': this.platform ? '#' + this.platform: '',
+                }
+            })
                 .then(res => {
                     if (res.data.data.articles.length > 0) {
                         res.data.data.articles.map((item, index) => {
@@ -351,14 +329,9 @@ export default {
                 this.checked = [];
             }
         },
+
         data_search() {
-            const txt = this.$route.query?.search || null;
-            if (txt) {
-                this.search = txt;
-            } else {
-                this.page = 1;
-                this.moveToPage();
-            }
+            this.getData();
         },
         platformChange() {
             this.page = 1;
@@ -370,6 +343,16 @@ export default {
         },
         stateChange() {
             this.page = 1;
+            this.moveToPage();
+        },
+        refresh() {
+            this.mediaId = 1;
+            this.page = 1;
+            this.per_page = 36;
+            this.platform = '';
+            this.type = '';
+            this.state = '';
+            this.search = '';
             this.moveToPage();
         }
     }
