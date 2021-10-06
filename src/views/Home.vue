@@ -3,7 +3,7 @@
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <v-row>
             <v-col>
-        <MediaSelectBox @medias="(mediaId)=>{
+                <MediaSelectBox @medias="(mediaId)=>{
             this.mediaId = mediaId;
             this.page = 1;
             this.per_page = 36;
@@ -15,9 +15,9 @@
             this.dateRanges[1] = '';
             moveToPage();
         }"
-        />
+                />
             </v-col>
-        <v-icon class="mr-2 mb-6" @click="refresh">mdi-refresh</v-icon>
+            <v-icon class="mr-2 mb-6" @click="refresh">mdi-refresh</v-icon>
         </v-row>
         <div>
             <div>
@@ -60,7 +60,7 @@
                                 changeMonth="true"
                             />
                         </v-menu>
-                        <v-btn class="white--text ml-2" color="#0A0C0C" @click="date_search()"> 검색 </v-btn>
+                        <v-btn class="white--text ml-2" color="#0A0C0C" @click="date_search()"> 검색</v-btn>
                     </v-col>
                     <v-select
                         :items="platform_items"
@@ -95,6 +95,7 @@
                             @change="changeAllState()"
                             label="노출 설정"
                             v-model="state"
+                            dense
                         ></v-switch>
                     </v-col>
                     <v-select
@@ -116,46 +117,57 @@
                     ></v-text-field>
                 </v-row>
             </div>
+
             <v-row
                 v-if="this.items.length === 0"
                 justify="center" align="center"
             >
                 데이터가 존재하지 않습니다.
             </v-row>
-            <v-row v-else>
-                <v-col
-                    cols="12" sm="6" md="4" lg="3"
-                    v-for="(item, i) in items" :key="i"
-                >
-                    <v-card height="100%">
-                        <v-checkbox class="ml-1" v-model="checked[i]" :key="item.id" :value="item.id"/>
-                        <v-img
-                            v-if="item.storage_thumbnail_url"
-                            class="row-pointer"
-                            :src="item.storage_thumbnail_url"
-                            @click="handleClick(item)"
-                            height="180px"
-                        >
-                        </v-img>
-                        <v-card-title>
-                            {{ item.keyword }}
-                        </v-card-title>
-                        <v-card-subtitle>
-                            {{ item.platform }}
-                            <v-switch
-                                v-model="item.state"
-                                :true-value=1
-                                :false-value=0
-                                color="#E00051"
-                                @change="changeState(item.id)"
-                            ></v-switch>
-                        </v-card-subtitle>
-                        <v-card-text>
-                            {{ item.contents }}
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
+
+                    <div  v-else style="overflow-x: scroll">
+                        <div class="d-block" style="width:2000px; max-width: 2000px;">
+                            <div class="d-inline-flex pa-1"  v-for="(item, i) in items" :key="i" style="width:200px;">
+                                <v-card  elevation="18" height="260px" width="200">
+                                    <v-row no-gutters style="margin: 0; padding: 0">
+                                        <v-checkbox class="ml-1 mt-1" v-model="checked[i]" :key="item.id" :value="item.id"
+                                                    style="float: left; margin: 0; padding: 0; height: 30px"/>
+                                        <v-switch
+                                            v-model="item.state"
+                                            :true-value=1
+                                            :false-value=0
+                                            color="#E00051"
+                                            @change="changeState(item.id)"
+                                            style="float: right; margin: 0; padding: 0; height: 30px"
+                                            class="mt-1"
+                                            dense
+                                        ></v-switch>
+                                    </v-row>
+                                    <v-img
+                                        v-if="item.storage_thumbnail_url"
+                                        class="row-pointer"
+                                        :src="item.storage_thumbnail_url"
+                                        @click="handleClick(item)"
+                                        height="180px"
+                                        style="margin: 0; padding: 0"
+                                    >
+                                    </v-img>
+                                    <!--                        <v-card-title>-->
+                                    <!--                            {{ item.keyword }}-->
+                                    <!--                        </v-card-title>-->
+                                    <!--                        <v-card-subtitle>-->
+                                    <!--                            {{ item.platform }}-->
+                                    <!--                        </v-card-subtitle>-->
+                                    <v-card-text style="margin: 0; padding: 0">
+                                        {{ item.contents }}
+                                    </v-card-text>
+                                </v-card>
+                            </div>
+                        </div>
+
+                    </div>
+
+
 
         </div>
         <v-pagination
@@ -209,7 +221,7 @@ export default {
                 {state: '미게시', value: 0},
             ],
             page: 1,
-            per_page: 36,
+            per_page: 30,
             last_page: 1,
             color: '',
             selected: false,
@@ -263,7 +275,7 @@ export default {
             this.type = this.$route.query.type;
         }
 
-        if(this.$route.query.start_date || this.$route.query.end_date) {
+        if (this.$route.query.start_date || this.$route.query.end_date) {
             this.dateRanges[0] = this.$route.query.start_date;
             this.dateRanges[1] = this.$route.query.end_date;
         }
@@ -307,7 +319,7 @@ export default {
                     'type': this.type ? this.type : '',
                     'search': this.search ? '#' + this.search : '',
                     'platform': this.platform ? '#' + this.platform : '',
-                    'start_date': this.dateRanges ?  this.dateRanges[0] : '',
+                    'start_date': this.dateRanges ? this.dateRanges[0] : '',
                     'end_date': this.dateRanges ? this.dateRanges[1] : '',
                 }
             })
@@ -325,9 +337,9 @@ export default {
                             }
                             let contents = '';
                             if (item.contents.length > 50) {
-                                contents = item.contents.substr(0, 50) + '...'
+                                contents = item.contents.substr(0, 20) + '...'
                             } else {
-                                contents = item.contents.substr(0, 50);
+                                contents = item.contents.substr(0, 20);
                             }
                             result.push({
                                 no: index + 1,
