@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <v-row>
             <v-col>
@@ -127,7 +127,7 @@
 
                     <div  v-else style="overflow-x: scroll">
                         <div class="d-block" style="width:2000px; max-width: 2000px;">
-                            <div class="d-inline-flex pa-1"  v-for="(item, i) in items" :key="i" style="width:200px;">
+                            <div class="d-inline-flex pa-2"  v-for="(item, i) in items" :key="i" style="width:200px;">
                                 <v-card  elevation="18" height="260px" width="200">
                                     <v-row no-gutters style="margin: 0; padding: 0">
                                         <v-checkbox class="ml-1 mt-1" v-model="checked[i]" :key="item.id" :value="item.id"
