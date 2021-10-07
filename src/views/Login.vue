@@ -22,7 +22,7 @@
                             dark
                             flat
                         >
-                            <v-toolbar-title>Tingstar Console 로그인</v-toolbar-title>
+                            <v-toolbar-title>TingStar Console 로그인</v-toolbar-title>
                         </v-toolbar>
                         <v-card-text>
                             <v-form
