@@ -47,7 +47,7 @@
         >
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
             <v-toolbar-title>
-                Curator9 Console
+                Tingstar Console
             </v-toolbar-title>
             <v-spacer/>
             <v-menu
