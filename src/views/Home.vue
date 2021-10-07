@@ -126,7 +126,7 @@
             </v-row>
             <v-row v-else>
                 <v-col
-                    cols="12" sm="4" md="4" lg="2"
+                    cols="12" sm="6" md="4" lg="2"
                     v-for="(item, i) in items" :key="i"
                 >
                     <div>
