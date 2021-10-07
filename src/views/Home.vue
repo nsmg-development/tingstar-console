@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container fluid>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <v-row>
             <v-col>
@@ -17,7 +17,6 @@
         }"
                 />
             </v-col>
-            <v-icon class="mr-2 mb-6" @click="refresh">mdi-refresh</v-icon>
         </v-row>
         <div>
             <div>
@@ -60,7 +59,6 @@
                                 changeMonth="true"
                             />
                         </v-menu>
-                        <v-btn class="white--text ml-2" color="#0A0C0C" @click="date_search()"> 검색</v-btn>
                     </v-col>
                     <v-select
                         :items="platform_items"
@@ -69,7 +67,7 @@
                         item-text="platform"
                         item-value="value"
                         @change="platformChange(platform)"
-                        style="width: 200px"
+                        style="max-width: 200px"
                     ></v-select>
                     <v-select
                         :items="type_items"
@@ -78,13 +76,22 @@
                         item-text="type"
                         item-value="value"
                         @change="typeChange(type)"
-                        style="width: 200px"
-                        class="mr-3"
+                        style="max-width: 200px"
+                    ></v-select>
+                    <v-select
+                        :items="state_items"
+                        v-model="article_state"
+                        label="노출상태"
+                        item-text="state"
+                        item-value="value"
+                        @change="stateChange(article_state)"
+                        style="max-width: 200px"
+                        class="mr-4"
                     ></v-select>
                 </v-row>
                 <v-row>
                     <v-col>
-                        <span class="ml-1"
+                        <span class="ml-3"
                               style="display:inline-block; float: left">
                         <v-checkbox v-model="selected" @click="selectAll()"/>
                     </span>
@@ -95,26 +102,19 @@
                             @change="changeAllState()"
                             label="노출 설정"
                             v-model="state"
+                            style="width: 200px"
                             dense
                         ></v-switch>
                     </v-col>
-                    <v-select
-                        :items="state_items"
-                        v-model="article_state"
-                        label="노출상태"
-                        item-text="state"
-                        item-value="value"
-                        @change="stateChange(article_state)"
-                        style="width: 200px"
-                    ></v-select>
                     <v-text-field
                         label="검색"
-                        append-icon="search"
                         v-model="search"
                         @keyup.native.enter="data_search()"
-                        class="mr-3"
-                        style="width: 200px"
+                        style="max-width: 545px;"
                     ></v-text-field>
+<!--                    <v-btn class="white&#45;&#45;text mt-3" color="#0A0C0C" @click="date_search()" width="50px"> 검색</v-btn>-->
+                    <v-icon @click="data_search()" class="mb-4" style="width: 30px">mdi-magnify</v-icon>
+                    <v-icon @click="refresh" class="mb-4 mr-3" style="width: 30px">mdi-refresh</v-icon>
                 </v-row>
             </div>
 
@@ -124,11 +124,13 @@
             >
                 데이터가 존재하지 않습니다.
             </v-row>
-
-            <div v-else style="overflow-x: scroll">
-                <div class="d-block" style="width:2000px; max-width: 2000px;">
-                    <div class="d-inline-flex pa-2" v-for="(item, i) in items" :key="i" style="width:200px;">
-                        <v-card elevation="18" height="260px" width="200">
+            <v-row v-else>
+                <v-col
+                    cols="12" sm="4" md="4" lg="2"
+                    v-for="(item, i) in items" :key="i"
+                >
+                    <div>
+                        <v-card elevation="18" height="260px" style="margin: 0; padding: 0">
                             <v-row no-gutters style="margin: 0; padding: 0">
                                 <v-checkbox class="ml-1 mt-1" v-model="checked[i]" :key="item.id" :value="item.id"
                                             style="float: left; margin: 0; padding: 0; height: 30px"/>
@@ -163,9 +165,49 @@
                             </v-card-text>
                         </v-card>
                     </div>
-                </div>
+                </v-col>
+            </v-row>
 
-            </div>
+<!--            <div v-else style="overflow-x: scroll">-->
+<!--                <div class="d-block" style="width:2000px; max-width: 2000px;">-->
+<!--                    <div class="d-inline-flex pa-2" v-for="(item, i) in items" :key="i" style="width:200px;">-->
+<!--                        <v-card elevation="18" height="260px" width="200">-->
+<!--                            <v-row no-gutters style="margin: 0; padding: 0">-->
+<!--                                <v-checkbox class="ml-1 mt-1" v-model="checked[i]" :key="item.id" :value="item.id"-->
+<!--                                            style="float: left; margin: 0; padding: 0; height: 30px"/>-->
+<!--                                <v-switch-->
+<!--                                    v-model="item.state"-->
+<!--                                    :true-value=1-->
+<!--                                    :false-value=0-->
+<!--                                    color="#E00051"-->
+<!--                                    @change="changeState(item.id)"-->
+<!--                                    style="float: right; margin: 0; padding: 0; height: 30px"-->
+<!--                                    class="mt-1"-->
+<!--                                    dense-->
+<!--                                ></v-switch>-->
+<!--                            </v-row>-->
+<!--                            <v-img-->
+<!--                                v-if="item.storage_thumbnail_url"-->
+<!--                                class="row-pointer"-->
+<!--                                :src="item.storage_thumbnail_url"-->
+<!--                                @click="handleClick(item)"-->
+<!--                                height="180px"-->
+<!--                                style="margin: 0; padding: 0"-->
+<!--                            >-->
+<!--                            </v-img>-->
+                            <!--                        <v-card-title>-->
+                            <!--                            {{ item.keyword }}-->
+                            <!--                        </v-card-title>-->
+                            <!--                        <v-card-subtitle>-->
+                            <!--                            {{ item.platform }}-->
+                            <!--                        </v-card-subtitle>-->
+<!--                            <v-card-text style="margin: 0; padding: 0">-->
+<!--                                {{ item.contents }}-->
+<!--                            </v-card-text>-->
+<!--                        </v-card>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
         <v-pagination
             class="mt-10 mb-5"

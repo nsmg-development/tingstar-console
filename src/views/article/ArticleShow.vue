@@ -193,30 +193,31 @@
             </v-card-title>
         </v-card>
         <v-card class="mb-5">
+            <v-icon large color="#E00051" class="ml-3">mdi-file</v-icon> 미디어
             <v-data-table
                 :headers="headers"
                 :items="items"
                 sort-by="calories"
-                class="elevation-1"
+                class="elevation-1 mt-4"
             >
                 <template v-slot:item.storage_url="{ item }">
                     <img :src="item.storage_url" style="width: 60px; height: 60px" class="mt-2" v-if="item.storage_url"/>
                 </template>
-                <template v-slot:top>
-                    <v-toolbar
-                        flat
-                    >
-                        <v-toolbar-title>
-                            <v-icon large color="#E00051">mdi-file</v-icon> 미디어
-                        </v-toolbar-title>
-                        <v-divider
-                            class="mx-4"
-                            inset
-                            vertical
-                        ></v-divider>
-                        <v-spacer></v-spacer>
-                    </v-toolbar>
-                </template>
+<!--                <template v-slot:top>-->
+<!--                    <v-toolbar-->
+<!--                        flat-->
+<!--                    >-->
+<!--                        <v-toolbar-title>-->
+<!--                            <v-icon large color="#E00051">mdi-file</v-icon> 미디어-->
+<!--                        </v-toolbar-title>-->
+<!--                        <v-divider-->
+<!--                            class="mx-4"-->
+<!--                            inset-->
+<!--                            vertical-->
+<!--                        ></v-divider>-->
+<!--                        <v-spacer></v-spacer>-->
+<!--                    </v-toolbar>-->
+<!--                </template>-->
             </v-data-table>
         </v-card>
     </v-container>
