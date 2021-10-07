@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <v-card class="mb-5">
             <v-icon large color="#E00051" class="ml-3">mdi-clipboard-text</v-icon> 상세정보

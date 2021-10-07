@@ -9,7 +9,6 @@
             this.per_page = 30;
             this.platform = '';
             this.type = '';
-            this.state = '';
             this.search = '';
             this.dateRanges[0] = '';
             this.dateRanges[1] = '';
@@ -98,15 +97,6 @@
                             dense
                         ></v-switch>
                     </v-col>
-                    <v-select
-                        :items="state_items"
-                        v-model="article_state"
-                        label="노출상태"
-                        item-text="state"
-                        item-value="value"
-                        @change="stateChange(article_state)"
-                        style="width: 200px"
-                    ></v-select>
                     <v-text-field
                         label="검색"
                         append-icon="search"
@@ -152,12 +142,6 @@
                                 style="margin: 0; padding: 0"
                             >
                             </v-img>
-                            <!--                        <v-card-title>-->
-                            <!--                            {{ item.keyword }}-->
-                            <!--                        </v-card-title>-->
-                            <!--                        <v-card-subtitle>-->
-                            <!--                            {{ item.platform }}-->
-                            <!--                        </v-card-subtitle>-->
                             <v-card-text style="margin: 0; padding: 0">
                                 {{ item.contents }}
                             </v-card-text>
@@ -181,8 +165,8 @@
 </template>
 
 <script>
-import Breadcrumbs from "../components/Breadcrumbs";
-import MediaSelectBox from "../components/MediaSelectBox";
+import Breadcrumbs from "../../components/Breadcrumbs";
+import MediaSelectBox from "../../components/MediaSelectBox";
 
 export default {
     components: {
@@ -191,14 +175,24 @@ export default {
     },
     data() {
         return {
-            loading: false,
             breadcrumbs: [
                 {
-                    text: '수집정보 리스트',
+                    text: '게시정보 리스트',
                     disabled: false,
-                    href: '/',
+                    href: '/article',
                 },
             ],
+            mediaId: null,
+            page: 1,
+            per_page: 30,
+            last_page: 1,
+            platform: '',
+            type: '',
+            search: '',
+            state: 1,
+            dateRanges: [],
+            datepicker: null,
+            end_datepicker: null,
             items: [],
             platform_items: [
                 {platform: '전체', value: ''},
@@ -212,28 +206,8 @@ export default {
                 {type: '키워드', value: 'keyword'},
                 {type: '채널', value: 'channel'},
             ],
-            state_items: [
-                {state: '전체', value: ''},
-                {state: '게시', value: 1},
-                {state: '미게시', value: 0},
-            ],
-            page: 1,
-            per_page: 30,
-            last_page: 1,
             selected: false,
             checked: [],
-            count: 0,
-            search: '',
-            mediaId: null,
-            state: 0,
-            platform: '',
-            type: '',
-            article_state: '',
-            datepicker: false,
-            end_datepicker: false,
-            date: '',
-            end_date: '',
-            dateRanges: [],
         }
     },
     watch: {
@@ -274,30 +248,78 @@ export default {
             this.dateRanges[0] = this.$route.query.start_date;
             this.dateRanges[1] = this.$route.query.end_date;
         }
-
         this.getData();
     },
     methods: {
-        checkPage() {
-            const page = this.$route.query?.page || null;
-            if (page) {
-                this.page = parseInt(page);
-            } else {
-                this.page = 1;
-                this.moveToPage();
-            }
-        },
-        checkMedia() {
-            const mediaId = this.$route.query?.media_id || null;
-            if (mediaId) {
-                this.mediaId = parseInt(mediaId);
-            } else {
-                this.mediaId = 1;
-                this.moveToPage();
-            }
-        },
         moveToPage() {
-            window.location.href = `?page=${this.page}&per_page=${this.per_page}&media_id=${this.mediaId}&state=${this.article_state}&platform=${this.platform}&type=${this.type}&search=${this.search}&start_date=${this.dateRanges[0] ?? ''}&end_date=${this.dateRanges[1] ?? ''}`;
+            window.location.href = `article?page=${this.page}&per_page=${this.per_page}&media_id=${this.mediaId}&state=1&platform=${this.platform}&type=${this.type}&search=${this.search}&start_date=${this.dateRanges[0] ?? ''}&end_date=${this.dateRanges[1] ?? ''}`;
+        },
+        refresh() {
+            this.mediaId = 1;
+            this.page = 1;
+            this.per_page = 30;
+            this.platform = '';
+            this.type = '';
+            this.search = '';
+            this.dateRanges[0] = '';
+            this.dateRanges[1] = '';
+            this.moveToPage();
+        },
+        date_search() {
+            this.moveToPage();
+        },
+        data_search() {
+            this.moveToPage();
+        },
+        platformChange() {
+            this.page = 1;
+            this.moveToPage()
+        },
+        typeChange() {
+            this.page = 1;
+            this.moveToPage();
+        },
+        selectAll() {
+            if (this.selected) {
+                this.checked = this.items.map(v => v.id);
+            } else {
+                this.checked = [];
+            }
+        },
+        changeAllState() {
+            const articleIds = this.checked.filter(chk => chk !== false);
+            console.log(articleIds);
+            if (!articleIds) {
+                alert('게시물을 선택해 주세요.')
+            }
+            const data = {
+                article_ids: articleIds,
+                state: this.state
+            }
+            this.axios.put('api/v1/articles', data).then(res => {
+                this.getData();
+                console.log(res);
+            }).catch(err => {
+                console.error(err);
+            });
+        },
+        changeState(id) {
+            const item = this.items.filter(item => item.id === id)[0];
+            const data = {
+                state: item.state
+            };
+            this.axios.put('api/v1/articles/' + id + '/state', data).then(res => {
+                this.getData();
+                console.log(res);
+            }).catch(err => {
+                console.error(err);
+            });
+        },
+        handleClick(value) {
+            this.$router.push({
+                name: 'ArticleShow',
+                params: {id: value.id},
+            });
         },
         getData() {
             let result = [];
@@ -309,7 +331,7 @@ export default {
                     'page': this.page,
                     'per_page': this.per_page,
                     'media_id': this.mediaId,
-                    'state': this.article_state ?? '',
+                    'state': 1,
                     'type': this.type ? this.type : '',
                     'search': this.search ? '#' + this.search : '',
                     'platform': this.platform ? '#' + this.platform : '',
@@ -375,85 +397,28 @@ export default {
                     console.error(err);
                 });
         },
-        handleClick(value) {
-            this.$router.push({
-                name: 'ArticleShow',
-                params: {id: value.id},
-            });
-        },
-        changeState(id) {
-            const item = this.items.filter(item => item.id === id)[0];
-            const data = {
-                state: item.state
-            };
-            this.axios.put('api/v1/articles/' + id + '/state', data).then(res => {
-                this.getData();
-                console.log(res);
-            }).catch(err => {
-                console.error(err);
-            });
-        },
-        changeAllState() {
-            const articleIds = this.checked.filter(chk => chk !== false);
-            console.log(articleIds);
-            if (!articleIds) {
-                alert('게시물을 선택해 주세요.')
-            }
-            const data = {
-                article_ids: articleIds,
-                state: this.state
-            }
-            this.axios.put('api/v1/articles', data).then(res => {
-                this.getData();
-                console.log(res);
-            }).catch(err => {
-                console.error(err);
-            });
-        },
-        selectAll() {
-            if (this.selected) {
-                this.checked = this.items.map(v => v.id);
+        checkPage() {
+            const page = this.$route.query?.page || null;
+            if (page) {
+                this.page = parseInt(page);
             } else {
-                this.checked = [];
+                this.page = 1;
+                this.moveToPage();
             }
         },
-
-        data_search() {
-            this.moveToPage();
+        checkMedia() {
+            const mediaId = this.$route.query?.media_id || null;
+            if (mediaId) {
+                this.mediaId = parseInt(mediaId);
+            } else {
+                this.mediaId = 1;
+                this.moveToPage();
+            }
         },
-        platformChange() {
-            this.page = 1;
-            this.moveToPage()
-        },
-        typeChange() {
-            this.page = 1;
-            this.moveToPage();
-        },
-        stateChange() {
-            this.page = 1;
-            this.moveToPage();
-        },
-        refresh() {
-            this.mediaId = 1;
-            this.page = 1;
-            this.per_page = 30;
-            this.platform = '';
-            this.type = '';
-            this.state = '';
-            this.search = '';
-            this.dateRanges[0] = '';
-            this.dateRanges[1] = '';
-            this.moveToPage();
-        },
-        date_search() {
-            this.moveToPage();
-        }
     }
 }
 </script>
 
 <style scoped>
-.row-pointer :hover {
-    cursor: pointer;
-}
+
 </style>

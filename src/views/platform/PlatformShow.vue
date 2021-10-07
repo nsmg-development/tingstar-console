@@ -1,5 +1,6 @@
 <template>
-    <v-container fluid>
+<!--    <v-container fluid>-->
+    <v-container>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <v-card-title>
             <v-row>

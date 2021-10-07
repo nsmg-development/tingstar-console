@@ -113,7 +113,18 @@ export default {
                 {
                     subheader: '관리',
                     menus: [
-                        {icon: "mdi-view-dashboard", text: "수집 정보 리스트", link: "/"},
+                        {icon: "mdi-view-dashboard", text: "수집 정보 리스트", link: "/", params: {
+                                'page': this.page,
+                                'per_page': this.per_page,
+                                'media_id': this.mediaId,
+                                'state': 1,
+                                'type': this.type ? this.type : '',
+                                'search': this.search ? '#' + this.search : '',
+                                'platform': this.platform ? '#' + this.platform : '',
+                                'start_date': this.dateRanges ? this.dateRanges[0] : '',
+                                'end_date': this.dateRanges ? this.dateRanges[1] : '',
+                            }},
+                        {icon: "mdi-format-list-bulleted", text: "게시 정보 리스트", link: "/article"},
                     ]
                 },
             ],

@@ -6,6 +6,7 @@ import Platform from "../views/platform/Platform";
 import PlatformShow from "../views/platform/PlatformShow";
 import MediaShow from "../views/media/MediaShow";
 import ArticleShow from "../views/article/ArticleShow";
+import ArticleList from "../views/article/ArticleList";
 Vue.use(VueRouter)
 
 const routes = [
@@ -26,6 +27,14 @@ const routes = [
 		path: '/',
 		name: 'Home',
 		component: Home,
+		meta: {
+			requiresAuth: true,
+		},
+	},
+	{
+		path: '/article',
+		name: 'ArticleList',
+		component: ArticleList,
 		meta: {
 			requiresAuth: true,
 		},

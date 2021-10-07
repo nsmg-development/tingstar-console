@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <MediaSelectBox @medias="medias"/>
         <v-row>
