@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container>
         <Breadcrumbs :breadcrumbs="breadcrumbs"/>
         <v-row>
             <v-col>
