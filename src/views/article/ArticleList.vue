@@ -81,7 +81,7 @@
                 </v-row>
                 <v-row>
                     <v-col>
-                        <span class="ml-3"
+                        <span class="ml-1"
                               style="display:inline-block; float: left">
                         <v-checkbox v-model="selected" @click="selectAll()"/>
                     </span>
@@ -102,7 +102,6 @@
                         @keyup.native.enter="data_search()"
                         style="max-width: 545px;"
                     ></v-text-field>
-                    <!--                    <v-btn class="white&#45;&#45;text mt-3" color="#0A0C0C" @click="date_search()" width="50px"> 검색</v-btn>-->
                     <v-icon @click="data_search()" class="mb-4" style="width: 30px">mdi-magnify</v-icon>
                     <v-icon @click="refresh" class="mb-4 mr-3" style="width: 30px">mdi-refresh</v-icon>
                 </v-row>
@@ -120,36 +119,29 @@
                     v-for="(item, i) in items" :key="i"
                 >
                     <div>
-                        <v-card elevation="18" height="260px" style="margin: 0; padding: 0">
+                        <v-card elevation="18" height="260px" style="margin: 0; padding: 0; border: 3px solid #E00051"
+                                outlined v-if="item.state === 1">
                             <v-row no-gutters style="margin: 0; padding: 0">
                                 <v-checkbox class="ml-1 mt-1" v-model="checked[i]" :key="item.id" :value="item.id"
                                             style="float: left; margin: 0; padding: 0; height: 30px"/>
-                                <v-switch
-                                    v-model="item.state"
-                                    :true-value=1
-                                    :false-value=0
-                                    color="#E00051"
-                                    @change="changeState(item.id)"
-                                    style="float: right; margin: 0; padding: 0; height: 30px"
-                                    class="mt-1"
-                                    dense
-                                ></v-switch>
+                                <v-chip
+                                    color="primary"
+                                    class="ma-1"
+                                    small
+                                    @click="handleClick(item)"
+                                >
+                                    {{ item.platform }}
+                                </v-chip>
                             </v-row>
                             <v-img
                                 v-if="item.storage_thumbnail_url"
                                 class="row-pointer"
                                 :src="item.storage_thumbnail_url"
-                                @click="handleClick(item)"
+                                @click="clickState(item.id)"
                                 height="180px"
                                 style="margin: 0; padding: 0"
                             >
                             </v-img>
-                            <!--                        <v-card-title>-->
-                            <!--                            {{ item.keyword }}-->
-                            <!--                        </v-card-title>-->
-                            <!--                        <v-card-subtitle>-->
-                            <!--                            {{ item.platform }}-->
-                            <!--                        </v-card-subtitle>-->
                             <v-card-text style="margin: 0; padding: 0">
                                 {{ item.contents }}
                             </v-card-text>
@@ -262,7 +254,7 @@ export default {
             window.location.href = `article?page=${this.page}&per_page=${this.per_page}&media_id=${this.mediaId}&state=1&platform=${this.platform}&type=${this.type}&search=${this.search}&start_date=${this.dateRanges[0] ?? ''}&end_date=${this.dateRanges[1] ?? ''}`;
         },
         refresh() {
-            this.mediaId = 1;
+            this.mediaId = 4;
             this.page = 1;
             this.per_page = 30;
             this.platform = '';
@@ -418,14 +410,34 @@ export default {
             if (mediaId) {
                 this.mediaId = parseInt(mediaId);
             } else {
-                this.mediaId = 1;
+                this.mediaId = 4;
                 this.moveToPage();
             }
+        },
+        clickState(id) {
+            const item = this.items.filter(item => item.id === id)[0];
+            let state = 0;
+            if (item.state === 0) {
+                state = 1;
+            } else {
+                state = 0;
+            }
+            const data = {
+                state: state
+            };
+            this.axios.put('api/v1/articles/' + id + '/state', data).then(res => {
+                this.getData();
+                console.log(res);
+            }).catch(err => {
+                console.error(err);
+            });
         },
     }
 }
 </script>
 
 <style scoped>
-
+.row-pointer :hover {
+    cursor: pointer;
+}
 </style>
